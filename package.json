@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/alanshaw/cljs-compiler/issues"
   },
-  "homepage": "https://github.com/alanshaw/cljs-compiler"
+  "homepage": "https://github.com/alanshaw/cljs-compiler",
+  "dependencies": {
+    "cljs-parser": "0.0.0"
+  }
 }
