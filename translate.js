@@ -8,9 +8,11 @@ function translate (node) {
     case "list": return list(node)
     case "s_exp_list": return sExpList(node)
     case "param_list": return paramList(node)
-    case "map_list": return mapList(node)
     case "keyword": return keyword(node)
-    default: throw new Error("Compile error")
+    case "symbol": return symbol(node)
+    case "string": return str(node)
+    case "leaf": return translate(node.left)
+    default: throw new Error("Compile error. Unknown node type " + node.type)
   }
 }
 
@@ -23,25 +25,39 @@ function list (node) {
 }
 
 function sExpList (node) {
-  var name = translate(node.left)
+  var left = translate(node.left)
 
-
-
-  var fn = new lang.Func(name)
-
-  return symbol.concat(translate(node.right))
+  switch (left[0].name) {
+    // Function definition
+    case "defn":
+      var fn = new lang.Func(
+        translate(node.right.left),
+        translate(node.right.right.left),
+        translate(node.right.right.right)
+      )
+      return [fn]
+    break
+    // Function call
+    default:
+      var invoke = new lang.Invoke(left, translate(node.right))
+      return [invoke]
+  }
 }
 
 function paramList (node) {
   return translate(node.left).concat(translate(node.right))
 }
 
-function mapList (node) {
-  return translate(node.left).concat(translate(node.right))
+function keyword (node) {
+  return [new lang.Keyword(node.val)]
 }
 
-function keyword (node) {
+function symbol (node) {
+  return [new lang.Symbol(node.val)]
+}
 
+function str (node) {
+  return [new lang.String(node.val)]
 }
 
 module.exports = translate
