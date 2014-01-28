@@ -21,10 +21,21 @@ function Str (val) {
   this.val = val
 }
 
+function Namespace (name) {
+  this.name = name
+}
+
+function Assign (name, val) {
+  this.name = name
+  this.val = val
+}
+
 module.exports = {
-    Func: Func
+    Function: Func
   , Invoke: Invoke
   , Keyword: Keyword
   , Symbol: Symbol
   , String: Str
+  , Namespace: Namespace
+  , Assign: Assign
 }

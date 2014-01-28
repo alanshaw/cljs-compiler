@@ -28,15 +28,25 @@ function sExpList (node) {
   var left = translate(node.left)
 
   switch (left[0].name) {
+    // Namespace definition
+    case "ns":
+      var ns = new lang.Namespace(translate(node.right.left))
+      return [ns]
     // Function definition
     case "defn":
-      var fn = new lang.Func(
+      var fn = new lang.Function(
         translate(node.right.left),
         translate(node.right.right.left),
         translate(node.right.right.right)
       )
       return [fn]
-    break
+    // Assignment
+    case "set!":
+      var asn = new lang.Assign(
+        translate(node.right.left),
+        translate(node.right.right)
+      )
+      return [asn]
     // Function call
     default:
       var invoke = new lang.Invoke(left, translate(node.right))

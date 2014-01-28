@@ -16,10 +16,12 @@ Can compile hello world:
 Into:
 
 ```js
-ns(hello.core)
-function _main() {
+!function () {
+hello = hello || {}
+hello.core = hello.core || {}
+function _main () {
 println("Hello World")
 }
-setBANG(STARmain_cli_fnSTAR(_main)
-)
+_STAR_main_cli_fn_STAR_ = _main
+}()
 ```
