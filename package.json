@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/alanshaw/cljs-compiler",
   "dependencies": {
-    "cljs-parser": "0.0.1"
+    "cljs-parser": "~0.0.1"
   }
 }
