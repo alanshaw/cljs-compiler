@@ -112,7 +112,9 @@ function genNamespace (t) {
 }
 
 function genAssign (t) {
-  return [assemble(t.name) + " = " + assemble(t.val)]
+  var varName = assemble(t.name)[0]
+  var ns = defined(varName) ? state.namespace : "cljs.core"
+  return [ns + "." + varName + " = " + assemble(t.val)[0]]
 }
 
 // Utility
