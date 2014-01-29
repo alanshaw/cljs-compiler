@@ -1,83 +1,121 @@
 var lang = require("./lang")
 
+var state = {
+  namespace: "",
+  coreRequired: false,
+  definitions: []
+}
+
 // TODO: Stream
 function assemble (translation) {
-  var js = ""
+  var lines = []
 
-  if (!translation) return js
+  if (!translation) return lines
 
   translation.forEach(function (t) {
     if (t instanceof lang.Function) {
-      js += genFunction(t)
+      lines = lines.concat(genFunction(t))
     } else if (t instanceof lang.Invoke) {
-      js += genInvoke(t)
+      lines = lines.concat(genInvoke(t))
     } else if (t instanceof lang.Keyword) {
-      js += genKeyword(t)
+      lines = lines.concat(genKeyword(t))
     } else if (t instanceof lang.Symbol) {
-      js += genSymbol(t)
+      lines = lines.concat(genSymbol(t))
     } else if (t instanceof lang.String) {
-      js += genString(t)
+      lines = lines.concat(genString(t))
     } else if (t instanceof lang.Namespace) {
-      js += genNamespace(t)
+      lines = lines.concat(genNamespace(t))
     } else if (t instanceof lang.Assign) {
-      js += genAssign(t)
+      lines = lines.concat(genAssign(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
-
-    console.log(js)
   })
 
-  return js
+  return lines
 }
 
 function genFunction (t) {
-  var js = "function " + assemble(t.name) + " ("
+  if (!state.namespace) throw new Error("No namespace declared")
 
-  js += (t.args || []).map(function (arg) {
-    return assemble([arg])
+  var functionName = assemble(t.name)[0]
+
+  var code = state.namespace + "." + functionName + " = function " + functionName + " ("
+
+  code += (t.args || []).map(function (arg) {
+    return assemble([arg])[0]
   }).join(", ")
 
-  js += ") {\n" + assemble(t.body) + "}\n"
+  code += ") {"
 
-  return js
+  var assembledBody = assemble(t.body)
+
+  if (assembledBody.length > 1) {
+    code += assembledBody.slice(0, assembledBody.length - 1).join(";\n")
+    code += ";\nreturn " + assembledBody[assembledBody.length - 1]
+  } else if (t.body.length) {
+    code += "return " + assembledBody[0]
+  }
+
+  code += "}"
+
+  return [code]
 }
 
 function genInvoke (t) {
-  var js = assemble(t.name) + "("
+  var lines = []
+  var code = ""
+  var functionName = assemble(t.name)[0]
 
-  js += (t.args || []).map(function (arg) {
-    return assemble([arg])
-  }).join(", ") + ")\n"
+  if (!defined(functionName)) {
+    // TODO: Check core function
+    if (!state.coreRequired) {
+      state.coreRequired = true
+      lines.push("goog.require('cljs.core')")
+    }
+    code += "cljs.core." + functionName + ".call(null"
+  } else {
+    code += state.namespace + "." + functionName + ".call(null"
+  }
 
-  return js
+  if (t.args.length) {
+    code += ", "
+    code += t.args.map(function (arg) {
+      return assemble([arg])[0]
+    }).join(", ")
+  }
+
+  code += ")\n"
+
+  lines.push(code)
+
+  return lines
 }
 
 function genKeyword (t) {
-  return makeJsSafe(t.name)
+  return [makeJsSafe(t.name)]
 }
 
 function genSymbol (t) {
-  return makeJsSafe(t.name)
+  return [makeJsSafe(t.name)]
 }
 
 function genString (t) {
-  return '"' + t.val.replace(/"/g, '\\"') + '"'
+  return ['"' + t.val.replace(/"/g, '\\"') + '"']
 }
 
 function genNamespace (t) {
-  var js = ""
-    , ns = ""
-  assemble(t.name).split(".").forEach(function (name) {
-    js += ns + name + " = " + ns + name + " || " + "{}\n"
-    ns = ns + name + "."
-  })
-  return js
+  // TODO: Save state?
+  state.namespace = assemble(t.name)[0]
+  state.definitions = []
+  return ["goog.provide('" + state.namespace + "')"]
 }
 
 function genAssign (t) {
-  return assemble(t.name) + " = " + assemble(t.val) + "\n"
+  return [assemble(t.name) + " = " + assemble(t.val)]
 }
+
+// Utility
 
 function makeJsSafe (val) {
   val = val.replace(/-/g, "_")
@@ -86,6 +124,11 @@ function makeJsSafe (val) {
   return val
 }
 
+function defined (name) {
+  return state.definitions.indexOf(name) > -1
+}
+
 module.exports = function (translation) {
-  return "!function () {\n" + assemble(translation) + "}()"
+  //console.log(JSON.stringify(translation, null, 2))
+  return assemble(translation).join(";\n") + ";"
 }
