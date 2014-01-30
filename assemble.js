@@ -80,11 +80,9 @@ function genInvoke (t) {
   var code = ""
   var functionName = assemble(t.name)[0]
 
-  if (!defined(functionName)) {
-    if (!state.coreRequired) {
-      state.coreRequired = true
-      lines.push("goog.require('cljs.core')")
-    }
+  if (!defined(functionName) && !state.coreRequired) {
+    state.coreRequired = true
+    lines.push("goog.require('cljs.core')")
   }
 
   code += functionName + ".call(null"
@@ -96,7 +94,7 @@ function genInvoke (t) {
     }).join(", ")
   }
 
-  code += ")\n"
+  code += ")"
 
   lines.push(code)
 
@@ -134,10 +132,11 @@ function genAssign (t) {
 // Utility
 
 function makeJsSafe (val) {
-  val = val.replace(/-/g, "_")
-  val = val.replace(/\*/g, "_STAR_")
-  val = val.replace(/!/g, "_BANG_")
   return val
+    .replace(/-/g, "_")
+    .replace(/\*/g, "_STAR_")
+    .replace(/!/g, "_BANG_")
+    .replace(/=/g, "_EQ_")
 }
 
 // Search through current scope and parent scopes to see if name exists

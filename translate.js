@@ -13,6 +13,7 @@ function translate (node) {
     case "string": return string(node)
     case "number": return number(node)
     case "leaf": return translate(node.left)
+    case "macro": return macro(node)
     default: throw new Error("Compile error. Unknown node type " + node.type)
   }
 }
@@ -28,7 +29,7 @@ function list (node) {
 function sExpList (node) {
   var left = translate(node.left)
 
-  if (node.left.type == "leaf") {
+  if (node.left.type == "leaf" && node.left.left.type == "symbol") {
     switch (left[0].name) {
       // Namespace definition
       case "ns":
@@ -79,4 +80,15 @@ function number (node) {
   return [new lang.Number(node.val)]
 }
 
-module.exports = translate
+function macro (node) {
+  switch (node.left.left.type) {
+    case "deref":
+      var invoke = new lang.Invoke([new lang.Symbol("deref")], translate(node.right))
+      return [invoke]
+  }
+}
+
+module.exports = function (t) {
+  console.log(JSON.stringify(t, null, 2))
+  return translate(t)
+}
