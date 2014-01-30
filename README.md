@@ -20,5 +20,5 @@ goog.provide('hello.core');
 hello.core._main = function _main () {goog.require('cljs.core');
 return cljs.core.println.call(null, "Hello World")
 };
-_STAR_main_cli_fn_STAR_ = _main;
+cljs.core._STAR_main_cli_fn_STAR_ = hello.core._main;
 ```

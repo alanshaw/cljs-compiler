@@ -3,7 +3,8 @@ var lang = require("./lang")
 var state = {
   namespace: "",
   coreRequired: false,
-  definitions: []
+  scopeNames: true,
+  scopes: [[]]
 }
 
 // TODO: Stream
@@ -38,9 +39,17 @@ function assemble (translation) {
 function genFunction (t) {
   if (!state.namespace) throw new Error("No namespace declared")
 
+  state.scopeNames = false
   var functionName = assemble(t.name)[0]
+  state.scopeNames = true
 
-  var code = state.namespace + "." + functionName + " = function " + functionName + " ("
+  // Add the function to the current scope
+  addDefinition(functionName)
+
+  var code = assemble(t.name)[0] + " = function " + functionName + " ("
+
+  // Create a new scope where the function parameters will be declared
+  createScope()
 
   code += (t.args || []).map(function (arg) {
     return assemble([arg])[0]
@@ -59,6 +68,8 @@ function genFunction (t) {
 
   code += "}"
 
+  destroyScope()
+
   return [code]
 }
 
@@ -68,15 +79,13 @@ function genInvoke (t) {
   var functionName = assemble(t.name)[0]
 
   if (!defined(functionName)) {
-    // TODO: Check core function
     if (!state.coreRequired) {
       state.coreRequired = true
       lines.push("goog.require('cljs.core')")
     }
-    code += "cljs.core." + functionName + ".call(null"
-  } else {
-    code += state.namespace + "." + functionName + ".call(null"
   }
+
+  code += functionName + ".call(null"
 
   if (t.args.length) {
     code += ", "
@@ -97,7 +106,7 @@ function genKeyword (t) {
 }
 
 function genSymbol (t) {
-  return [makeJsSafe(t.name)]
+  return [scopedName(t.name)]
 }
 
 function genString (t) {
@@ -105,16 +114,15 @@ function genString (t) {
 }
 
 function genNamespace (t) {
-  // TODO: Save state?
+  state.scopeNames = false
   state.namespace = assemble(t.name)[0]
-  state.definitions = []
+  state.scopeNames = true
+  state.scopes = [[]]
   return ["goog.provide('" + state.namespace + "')"]
 }
 
 function genAssign (t) {
-  var varName = assemble(t.name)[0]
-  var ns = defined(varName) ? state.namespace : "cljs.core"
-  return [ns + "." + varName + " = " + assemble(t.val)[0]]
+  return [assemble(t.name)[0] + " = " + assemble(t.val)[0]]
 }
 
 // Utility
@@ -126,8 +134,45 @@ function makeJsSafe (val) {
   return val
 }
 
+// Search through current scope and parent scopes to see if name exists
 function defined (name) {
-  return state.definitions.indexOf(name) > -1
+  for (var i = 0; i < state.scopes.length; i++) {
+    if (state.scopes[i].indexOf(name) > -1) {
+      return true
+    }
+  }
+  return false
+}
+
+function scopedName (name) {
+  name = makeJsSafe(name)
+
+  if (!state.scopeNames) return name
+
+  for (var i = 0; i < state.scopes.length; i++) {
+    if (state.scopes[i].indexOf(name) > -1) {
+      if (i == state.scopes.length -1) {
+        return state.namespace + "." + name
+      } else {
+        return name
+      }
+    }
+  }
+  // TODO: Check defined in core?
+  return "cljs.core." + name
+}
+
+function addDefinition (name) {
+  state.scopes[0].push(name)
+  return name
+}
+
+function createScope () {
+  state.scopes.unshift([])
+}
+
+function destroyScope () {
+  state.scopes = state.scopes.slice(1)
 }
 
 module.exports = function (translation) {
