@@ -10,7 +10,8 @@ function translate (node) {
     case "param_list": return paramList(node)
     case "keyword": return keyword(node)
     case "symbol": return symbol(node)
-    case "string": return str(node)
+    case "string": return string(node)
+    case "number": return number(node)
     case "leaf": return translate(node.left)
     default: throw new Error("Compile error. Unknown node type " + node.type)
   }
@@ -70,8 +71,12 @@ function symbol (node) {
   return [new lang.Symbol(node.val)]
 }
 
-function str (node) {
+function string (node) {
   return [new lang.String(node.val)]
+}
+
+function number (node) {
+  return [new lang.Number(node.val)]
 }
 
 module.exports = translate

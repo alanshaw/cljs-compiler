@@ -21,6 +21,10 @@ function Str (val) {
   this.val = val
 }
 
+function Num (val) {
+  this.val = val
+}
+
 function Namespace (name) {
   this.name = name
 }
@@ -36,6 +40,7 @@ module.exports = {
   , Keyword: Keyword
   , Symbol: Symbol
   , String: Str
+  , Number: Num
   , Namespace: Namespace
   , Assign: Assign
 }

@@ -24,6 +24,8 @@ function assemble (translation) {
       lines = lines.concat(genSymbol(t))
     } else if (t instanceof lang.String) {
       lines = lines.concat(genString(t))
+    } else if (t instanceof lang.Number) {
+      lines = lines.concat(genNumber(t))
     } else if (t instanceof lang.Namespace) {
       lines = lines.concat(genNamespace(t))
     } else if (t instanceof lang.Assign) {
@@ -111,6 +113,10 @@ function genSymbol (t) {
 
 function genString (t) {
   return ['"' + t.val.replace(/"/g, '\\"') + '"']
+}
+
+function genNumber (t) {
+  return [t.val.toString()]
 }
 
 function genNamespace (t) {
