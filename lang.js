@@ -25,6 +25,10 @@ function Num (val) {
   this.val = val
 }
 
+function Bool (val) {
+  this.val = val
+}
+
 function Namespace (name) {
   this.name = name
 }
@@ -40,6 +44,7 @@ module.exports = {
   , Keyword: Keyword
   , Symbol: Symbol
   , String: Str
+  , Boolean: Bool
   , Number: Num
   , Namespace: Namespace
   , Assign: Assign

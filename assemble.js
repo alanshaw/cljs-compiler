@@ -26,6 +26,8 @@ function assemble (translation) {
       lines = lines.concat(genString(t))
     } else if (t instanceof lang.Number) {
       lines = lines.concat(genNumber(t))
+    } else if (t instanceof lang.Boolean) {
+      lines = lines.concat(genBoolean(t))
     } else if (t instanceof lang.Namespace) {
       lines = lines.concat(genNamespace(t))
     } else if (t instanceof lang.Assign) {
@@ -114,6 +116,10 @@ function genString (t) {
 }
 
 function genNumber (t) {
+  return [t.val.toString()]
+}
+
+function genBoolean (t) {
   return [t.val.toString()]
 }
 

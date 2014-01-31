@@ -12,6 +12,7 @@ function translate (node) {
     case "symbol": return symbol(node)
     case "string": return string(node)
     case "number": return number(node)
+    case "boolean": return boolean(node)
     case "leaf": return translate(node.left)
     case "macro": return macro(node)
     default: throw new Error("Compile error. Unknown node type " + node.type)
@@ -78,6 +79,10 @@ function string (node) {
 
 function number (node) {
   return [new lang.Number(node.val)]
+}
+
+function boolean (node) {
+  return [new lang.Boolean(node.val)]
 }
 
 function macro (node) {
