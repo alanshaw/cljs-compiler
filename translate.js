@@ -7,7 +7,7 @@ function translate (node) {
     case "list_list": return listList(node)
     case "list": return list(node)
     case "s_exp_list": return sExpList(node)
-    case "param_list": return paramList(node)
+    case "vector": return vector(node)
     case "keyword": return keyword(node)
     case "symbol": return symbol(node)
     case "string": return string(node)
@@ -24,50 +24,51 @@ function listList (node) {
 }
 
 function list (node) {
-  return translate(node.left)
-}
-
-function sExpList (node) {
-  if (node.left.type == "leaf" && node.left.left.type == "symbol") {
-    var left = translate(node.left)
+  var leftNode = node.left
+  if (leftNode.left.type == "leaf" && leftNode.left.left.type == "symbol") {
+    var left = translate(leftNode.left)
     switch (left[0].name) {
       // Namespace definition
       case "ns":
-        var ns = new lang.Namespace(translate(node.right.left))
+        var ns = new lang.Namespace(translate(leftNode.right.left))
         return [ns]
       // Variable definition
       case "def":
         var v = new lang.Variable(
-          translate(node.right.left),
-          translate(node.right.right)
+          translate(leftNode.right.left),
+          translate(leftNode.right.right)
         )
         return [v]
       // Function definition
       case "defn":
         var fn = new lang.Function(
-          translate(node.right.left),
-          translate(node.right.right.left),
-          translate(node.right.right.right)
+          translate(leftNode.right.left),
+          new lang.FuncArgs(translate(leftNode.right.right.left)),
+          translate(leftNode.right.right.right)
         )
         return [fn]
       // Assignment
       case "set!":
         var asn = new lang.Assign(
-          translate(node.right.left),
-          translate(node.right.right)
+          translate(leftNode.right.left),
+          translate(leftNode.right.right)
         )
         return [asn]
       // Function call
       default:
-        var invoke = new lang.Invoke(left, translate(node.right))
+        var invoke = new lang.Invoke(left, translate(leftNode.right))
         return [invoke]
     }
   } else {
-    return translate(node.left).concat(translate(node.right))
+    return translate(leftNode.left).concat(translate(leftNode.right))
   }
 }
 
-function paramList (node) {
+function sExpList (node) {
+  return translate(node.left).concat(translate(node.right))
+}
+
+function vector (node) {
   return translate(node.left).concat(translate(node.right))
 }
 
@@ -100,6 +101,6 @@ function macro (node) {
 }
 
 module.exports = function (t) {
-  console.log(JSON.stringify(t, null, 2))
+  //console.log(JSON.stringify(t, null, 2))
   return translate(t)
 }

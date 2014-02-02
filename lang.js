@@ -4,6 +4,10 @@ function Func (name, args, body) {
   this.body = body
 }
 
+function FuncArgs (val) {
+  this.val = val
+}
+
 function Variable (name, val) {
   this.name = name
   this.val = val
@@ -45,6 +49,7 @@ function Assign (name, val) {
 
 module.exports = {
     Function: Func
+  , FuncArgs: FuncArgs
   , Variable: Variable
   , Invoke: Invoke
   , Keyword: Keyword

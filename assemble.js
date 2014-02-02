@@ -57,9 +57,13 @@ function genFunction (t) {
   // Create a new scope where the function parameters will be declared
   createScope()
 
-  code += (t.args || []).map(function (arg) {
-    return assemble([arg])[0]
+  state.scopeNames = false
+  code += t.args.val.map(function (arg) {
+    var name = assemble([arg])[0]
+    addDefinition(name)
+    return name
   }).join(", ")
+  state.scopeNames = true
 
   code += ") {"
 
