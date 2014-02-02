@@ -16,6 +16,8 @@ function assemble (translation) {
   translation.forEach(function (t) {
     if (t instanceof lang.Function) {
       lines = lines.concat(genFunction(t))
+    } else if (t instanceof lang.Variable) {
+      lines = lines.concat(genVariable(t))
     } else if (t instanceof lang.Invoke) {
       lines = lines.concat(genInvoke(t))
     } else if (t instanceof lang.Keyword) {
@@ -75,6 +77,23 @@ function genFunction (t) {
   destroyScope()
 
   return [code]
+}
+
+function genVariable (t) {
+  state.scopeNames = false
+  var v = assemble(t.name)[0]
+  state.scopeNames = true
+
+  addDefinition(v)
+
+  // Top scope gets appended to namespace
+  if (state.scopes.length > 1) {
+    v = "var " + v
+  } else {
+    v = state.namespace + "." + v
+  }
+
+  return [v + " = " + assemble(t.val)[0]]
 }
 
 function genInvoke (t) {

@@ -28,14 +28,20 @@ function list (node) {
 }
 
 function sExpList (node) {
-  var left = translate(node.left)
-
   if (node.left.type == "leaf" && node.left.left.type == "symbol") {
+    var left = translate(node.left)
     switch (left[0].name) {
       // Namespace definition
       case "ns":
         var ns = new lang.Namespace(translate(node.right.left))
         return [ns]
+      // Variable definition
+      case "def":
+        var v = new lang.Variable(
+          translate(node.right.left),
+          translate(node.right.right)
+        )
+        return [v]
       // Function definition
       case "defn":
         var fn = new lang.Function(

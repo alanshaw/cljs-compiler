@@ -7,7 +7,7 @@ module.exports.compile = function (input) {
     , translated = translate(tree)
     , js = assemble(translated)
 
-  console.log(JSON.stringify(tree, null, 2))
+  //console.log(JSON.stringify(tree, null, 2))
 
   return js
 }
