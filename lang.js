@@ -47,6 +47,12 @@ function Assign (name, val) {
   this.val = val
 }
 
+function Comparison (type, left, right) {
+  this.type = type
+  this.left = left
+  this.right = right
+}
+
 module.exports = {
     Function: Func
   , FuncArgs: FuncArgs
@@ -59,4 +65,5 @@ module.exports = {
   , Number: Num
   , Namespace: Namespace
   , Assign: Assign
+  , Comparison: Comparison
 }

@@ -34,6 +34,8 @@ function assemble (translation) {
       lines = lines.concat(genNamespace(t))
     } else if (t instanceof lang.Assign) {
       lines = lines.concat(genAssign(t))
+    } else if (t instanceof lang.Comparison) {
+      lines = lines.concat(genComparison(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
@@ -156,6 +158,11 @@ function genNamespace (t) {
 
 function genAssign (t) {
   return [assemble(t.name)[0] + " = " + assemble(t.val)[0]]
+}
+
+function genComparison (t) {
+  console.log(t)
+  return ["(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"]
 }
 
 // Utility

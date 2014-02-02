@@ -30,34 +30,46 @@ function list (node) {
     switch (left[0].name) {
       // Namespace definition
       case "ns":
-        var ns = new lang.Namespace(translate(leftNode.right.left))
-        return [ns]
+        return [new lang.Namespace(translate(leftNode.right.left))]
       // Variable definition
       case "def":
-        var v = new lang.Variable(
+        return [new lang.Variable(
           translate(leftNode.right.left),
           translate(leftNode.right.right)
-        )
-        return [v]
+        )]
       // Function definition
       case "defn":
-        var fn = new lang.Function(
+        return [new lang.Function(
           translate(leftNode.right.left),
           new lang.FuncArgs(translate(leftNode.right.right.left)),
           translate(leftNode.right.right.right)
-        )
-        return [fn]
+        )]
       // Assignment
       case "set!":
-        var asn = new lang.Assign(
+        return [new lang.Assign(
           translate(leftNode.right.left),
           translate(leftNode.right.right)
-        )
-        return [asn]
+        )]
+      // Comparison
+      case "<":
+      case ">":
+      case "<=":
+      case ">=":
+      case "==":
+        return [new lang.Comparison(
+          left,
+          translate(leftNode.right.left),
+          translate(leftNode.right.right)
+        )]
+      case "not=":
+        return [new lang.Comparison(
+          [new lang.Symbol("!=")],
+          translate(leftNode.right.left),
+          translate(leftNode.right.right)
+        )]
       // Function call
       default:
-        var invoke = new lang.Invoke(left, translate(leftNode.right))
-        return [invoke]
+        return [new lang.Invoke(left, translate(leftNode.right))]
     }
   } else {
     return translate(leftNode.left).concat(translate(leftNode.right))
