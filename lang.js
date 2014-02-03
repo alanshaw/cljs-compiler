@@ -4,6 +4,11 @@ function Func (name, args, body) {
   this.body = body
 }
 
+function Lambda (args, body) {
+  this.args = args
+  this.body = body
+}
+
 function FuncArgs (val) {
   this.val = val
 }
@@ -16,6 +21,11 @@ function Variable (name, val) {
 function Invoke (name, args) {
   this.name = name
   this.args = args
+}
+
+function Accessor (obj, prop) {
+  this.obj = obj
+  this.prop = prop
 }
 
 function Keyword (name) {
@@ -55,9 +65,11 @@ function Comparison (type, left, right) {
 
 module.exports = {
     Function: Func
+  , Lambda: Lambda
   , FuncArgs: FuncArgs
   , Variable: Variable
   , Invoke: Invoke
+  , Accessor: Accessor
   , Keyword: Keyword
   , Symbol: Symbol
   , String: Str

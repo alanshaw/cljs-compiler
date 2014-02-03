@@ -16,10 +16,14 @@ function assemble (translation) {
   translation.forEach(function (t) {
     if (t instanceof lang.Function) {
       lines = lines.concat(genFunction(t))
+    } else if (t instanceof lang.Lambda) {
+      lines = lines.concat(genLambda(t))
     } else if (t instanceof lang.Variable) {
       lines = lines.concat(genVariable(t))
     } else if (t instanceof lang.Invoke) {
       lines = lines.concat(genInvoke(t))
+    } else if (t instanceof lang.Accessor) {
+      lines = lines.concat(genAccessor(t))
     } else if (t instanceof lang.Keyword) {
       lines = lines.concat(genKeyword(t))
     } else if (t instanceof lang.Symbol) {
@@ -55,6 +59,38 @@ function genFunction (t) {
   addDefinition(functionName)
 
   var code = assemble(t.name)[0] + " = function " + functionName + " ("
+
+  // Create a new scope where the function parameters will be declared
+  createScope()
+
+  state.scopeNames = false
+  code += t.args.val.map(function (arg) {
+    var name = assemble([arg])[0]
+    addDefinition(name)
+    return name
+  }).join(", ")
+  state.scopeNames = true
+
+  code += ") {"
+
+  var assembledBody = assemble(t.body)
+
+  if (assembledBody.length > 1) {
+    code += assembledBody.slice(0, assembledBody.length - 1).join(";\n")
+    code += ";\nreturn " + assembledBody[assembledBody.length - 1]
+  } else if (t.body.length) {
+    code += "return " + assembledBody[0]
+  }
+
+  code += "}"
+
+  destroyScope()
+
+  return [code]
+}
+
+function genLambda (t) {
+  var code = "function ("
 
   // Create a new scope where the function parameters will be declared
   createScope()
@@ -133,6 +169,10 @@ function genInvoke (t) {
   lines.push(code)
 
   return lines
+}
+
+function genAccessor (t) {
+  return [assemble(t.obj)[0] + "." + assemble(t.prop)[0]]
 }
 
 function genKeyword (t) {

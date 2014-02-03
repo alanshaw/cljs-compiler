@@ -44,6 +44,12 @@ function list (node) {
           new lang.FuncArgs(translate(leftNode.right.right.left)),
           translate(leftNode.right.right.right)
         )]
+      // Lambda function
+      case "fn":
+        return [new lang.Lambda(
+          new lang.FuncArgs(translate(leftNode.right.left)),
+          translate(leftNode.right.right)
+        )]
       // Assignment
       case "set!":
         return [new lang.Assign(
@@ -79,9 +85,15 @@ function list (node) {
       default:
         // Property access on object
         if (left[0].name.indexOf(".-") == 0) {
-          return [new lang.Symbol(
-            translate(leftNode.right.left)[0].name + left[0].name.replace(".-", ".")
+          //console.log("========")
+          //console.log(JSON.stringify(translate(leftNode.right.left), null, 2))
+          return [new lang.Accessor(
+            translate(leftNode.right.left),
+            [new lang.Symbol(left[0].name.replace(".-", ""))]
           )]
+          /*return [new lang.Symbol(
+            translate(leftNode.right.left)[0].name + left[0].name.replace(".-", ".")
+          )]*/
         // Function call on object
         } else if (left[0].name[0] == ".") {
           return [new lang.Invoke(
