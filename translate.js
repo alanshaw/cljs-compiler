@@ -75,8 +75,18 @@ function list (node) {
           vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
         }
         return vars.concat(translate(leftNode.right.right))
-      // Function call
+      // Function call or property access
       default:
+        // Function call on object
+        if (left[0].name[0] == ".") {
+          return [new lang.Invoke(
+            [new lang.Symbol(translate(leftNode.right.left)[0].name + left[0].name)],
+            translate(leftNode.right.right)
+          )]
+        // Property access on object
+        } else if (left[0].name[0] == "-") {
+
+        }
         return [new lang.Invoke(left, translate(leftNode.right))]
     }
   } else {

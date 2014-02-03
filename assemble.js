@@ -112,10 +112,17 @@ function genInvoke (t) {
     lines.push("goog.require('cljs.core')")
   }
 
-  code += functionName + ".call(null"
+  if (t.name[0].name.indexOf("js/") > -1) {
+    code += functionName + "("
+  } else {
+    code += functionName + ".call(null"
+
+    if (t.args.length) {
+      code += ", "
+    }
+  }
 
   if (t.args.length) {
-    code += ", "
     code += t.args.map(function (arg) {
       return assemble([arg])[0]
     }).join(", ")
@@ -199,6 +206,15 @@ function scopedName (name) {
       }
     }
   }
+
+  // Namespaced name
+  if (name.indexOf("/") > -1) {
+    if (name.indexOf("js/") > -1) {
+      return name.replace("js/", "")
+    }
+    return name.replace("/", ".")
+  }
+
   // TODO: Check defined in core?
   return "cljs.core." + name
 }
