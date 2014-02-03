@@ -112,7 +112,7 @@ function genInvoke (t) {
     lines.push("goog.require('cljs.core')")
   }
 
-  if (t.name[0].name.indexOf("js/") > -1) {
+  if (t.name[0].name.indexOf(".") > -1) {
     code += functionName + "("
   } else {
     code += functionName + ".call(null"
@@ -168,7 +168,6 @@ function genAssign (t) {
 }
 
 function genComparison (t) {
-  console.log(t)
   return ["(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"]
 }
 
@@ -197,22 +196,30 @@ function scopedName (name) {
 
   if (!state.scopeNames) return name
 
-  for (var i = 0; i < state.scopes.length; i++) {
-    if (state.scopes[i].indexOf(name) > -1) {
-      if (i == state.scopes.length -1) {
-        return state.namespace + "." + name
-      } else {
-        return name
-      }
-    }
-  }
-
   // Namespaced name
   if (name.indexOf("/") > -1) {
     if (name.indexOf("js/") > -1) {
       return name.replace("js/", "")
     }
     return name.replace("/", ".")
+  }
+
+  var localName = null
+
+  if (name.indexOf(".") > -1) {
+    localName = name.slice(0, name.indexOf("."))
+  } else {
+    localName = name
+  }
+
+  for (var i = 0; i < state.scopes.length; i++) {
+    if (state.scopes[i].indexOf(localName) > -1) {
+      if (i == state.scopes.length - 1) {
+        return state.namespace + "." + name
+      } else {
+        return name
+      }
+    }
   }
 
   // TODO: Check defined in core?
