@@ -77,15 +77,17 @@ function list (node) {
         return vars.concat(translate(leftNode.right.right))
       // Function call or property access
       default:
+        // Property access on object
+        if (left[0].name.indexOf(".-") == 0) {
+          return [new lang.Symbol(
+            translate(leftNode.right.left)[0].name + left[0].name.replace(".-", ".")
+          )]
         // Function call on object
-        if (left[0].name[0] == ".") {
+        } else if (left[0].name[0] == ".") {
           return [new lang.Invoke(
             [new lang.Symbol(translate(leftNode.right.left)[0].name + left[0].name)],
             translate(leftNode.right.right)
           )]
-        // Property access on object
-        } else if (left[0].name[0] == "-") {
-
         }
         return [new lang.Invoke(left, translate(leftNode.right))]
     }
