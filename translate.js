@@ -67,6 +67,14 @@ function list (node) {
           translate(leftNode.right.left),
           translate(leftNode.right.right)
         )]
+      // Variable declarations
+      case "let":
+        var decs = translate(leftNode.right.left)
+        var vars = []
+        for (var i = 0; i < decs.length; i += 2) {
+          vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
+        }
+        return vars.concat(translate(leftNode.right.right))
       // Function call
       default:
         return [new lang.Invoke(left, translate(leftNode.right))]
