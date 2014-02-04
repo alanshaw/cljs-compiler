@@ -63,6 +63,12 @@ function list (node) {
           translate(leftNode.right.right.left),
           translate(leftNode.right.right.right)
         )]
+      case "when":
+        return [new lang.Conditional(
+          translate(leftNode.right.left),
+          translate(leftNode.right.right),
+          []
+        )]
       case "do":
         return [new lang.Invoke(
           [new lang.Lambda(
