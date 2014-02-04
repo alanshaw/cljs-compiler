@@ -145,14 +145,14 @@ function genInvoke (t) {
   var code = ""
 
   if (t.name[0] instanceof lang.Symbol) {
-    var functionName = assemble(t.name)[0]
+    var functionName = assemble(t.name).join("")
 
     if (!defined(functionName) && !state.coreRequired) {
       state.coreRequired = true
       lines.push("goog.require('cljs.core')")
     }
 
-    if (t.name[0].name.indexOf(".") > -1) {
+    if (functionName.indexOf(".") > -1) {
       code += functionName + "("
     } else {
       code += functionName + ".call(null"
@@ -180,7 +180,7 @@ function genInvoke (t) {
 
 function genAccessor (t) {
   var prop = assemble(t.prop)[0]
-  return [assemble(t.obj)[0] + "." + prop]
+  return [assemble(t.obj).join("") + prop.replace(/^\._/, ".")]
 }
 
 function genKeyword (t) {
@@ -285,9 +285,9 @@ function scopedName (name) {
     return name.replace("/", ".")
   }
 
-  // Accessor
-  if (name.indexOf("._") == 0) {
-    return name.replace("._", "")
+  // Accessor or function call on object
+  if (name.indexOf(".") == 0) {
+    return name
   }
 
   var localName = null

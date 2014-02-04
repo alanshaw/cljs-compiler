@@ -92,7 +92,7 @@ function list (node) {
             new lang.FuncArgs([]),
             vars.concat(translate(leftNode.right.right))
           )],
-          new lang.FuncArgs([])
+          []
         )]
       // Function call or property access
       default:
@@ -102,7 +102,7 @@ function list (node) {
         // Function call on object
         } else if (left[0].name[0] == ".") {
           return [new lang.Invoke(
-            [new lang.Symbol(translate(leftNode.right.left)[0].name + left[0].name)],
+            translate(leftNode.right.left).concat(left),
             translate(leftNode.right.right)
           )]
         }
