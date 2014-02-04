@@ -90,7 +90,7 @@ function genFunction (t) {
 }
 
 function genLambda (t) {
-  var code = "function ("
+  var code = "(function ("
 
   // Create a new scope where the function parameters will be declared
   createScope()
@@ -114,7 +114,7 @@ function genLambda (t) {
     code += "return " + assembledBody[0]
   }
 
-  code += "}"
+  code += "})"
 
   destroyScope()
 
@@ -141,21 +141,26 @@ function genVariable (t) {
 function genInvoke (t) {
   var lines = []
   var code = ""
-  var functionName = assemble(t.name)[0]
 
-  if (!defined(functionName) && !state.coreRequired) {
-    state.coreRequired = true
-    lines.push("goog.require('cljs.core')")
-  }
+  if (t.name[0] instanceof lang.Symbol) {
+    var functionName = assemble(t.name)[0]
 
-  if (t.name[0].name.indexOf(".") > -1) {
-    code += functionName + "("
-  } else {
-    code += functionName + ".call(null"
-
-    if (t.args.length) {
-      code += ", "
+    if (!defined(functionName) && !state.coreRequired) {
+      state.coreRequired = true
+      lines.push("goog.require('cljs.core')")
     }
+
+    if (t.name[0].name.indexOf(".") > -1) {
+      code += functionName + "("
+    } else {
+      code += functionName + ".call(null"
+
+      if (t.args.length) {
+        code += ", "
+      }
+    }
+  } else {
+    code += assemble(t.name)[0] + "("
   }
 
   if (t.args.length) {
