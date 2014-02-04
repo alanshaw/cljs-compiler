@@ -172,7 +172,8 @@ function genInvoke (t) {
 }
 
 function genAccessor (t) {
-  return [assemble(t.obj)[0] + "." + assemble(t.prop)[0]]
+  var prop = assemble(t.prop)[0]
+  return [assemble(t.obj)[0] + "." + prop]
 }
 
 function genKeyword (t) {
@@ -242,6 +243,11 @@ function scopedName (name) {
       return name.replace("js/", "")
     }
     return name.replace("/", ".")
+  }
+
+  // Accessor
+  if (name.indexOf("._") == 0) {
+    return name.replace("._", "")
   }
 
   var localName = null
