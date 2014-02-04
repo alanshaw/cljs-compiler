@@ -152,15 +152,27 @@ function genInvoke (t) {
       lines.push("goog.require('cljs.core')")
     }
 
-    if (functionName.indexOf(".") > -1) {
-      code += functionName + "("
-    } else {
+    // TODO: This'll eventually be a list of imported namespaces
+    var namespaces = ["cljs.core", state.namespace]
+    var namespaced = false
+
+    for (var i = 0; i < namespaces.length; i++) {
+      if (functionName.indexOf(namespaces[i]) == 0) {
+        namespaced = true
+        break
+      }
+    }
+
+    if (namespaced) {
       code += functionName + ".call(null"
 
       if (t.args.length) {
         code += ", "
       }
+    } else {
+      code += functionName + "("
     }
+
   } else {
     code += assemble(t.name)[0] + "("
   }
