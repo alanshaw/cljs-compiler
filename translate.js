@@ -63,6 +63,13 @@ function list (node) {
           translate(leftNode.right.right.left),
           translate(leftNode.right.right.right)
         )]
+      case "do":
+        return [new lang.Invoke(
+          [new lang.Lambda(
+            new lang.FuncArgs([]),
+            translate(leftNode.right)
+          )], []
+        )]
       // Comparison
       case "<":
       case ">":
@@ -91,8 +98,7 @@ function list (node) {
           [new lang.Lambda(
             new lang.FuncArgs([]),
             vars.concat(translate(leftNode.right.right))
-          )],
-          []
+          )], []
         )]
       // Function call or property access
       default:
