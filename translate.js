@@ -56,6 +56,13 @@ function list (node) {
           translate(leftNode.right.left),
           translate(leftNode.right.right)
         )]
+      // Conditional
+      case "if":
+        return [new lang.Conditional(
+          translate(leftNode.right.left),
+          translate(leftNode.right.right.left),
+          translate(leftNode.right.right.right)
+        )]
       // Comparison
       case "<":
       case ">":

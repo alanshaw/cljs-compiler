@@ -57,6 +57,12 @@ function Assign (name, val) {
   this.val = val
 }
 
+function Conditional (condition, consequent, alternative) {
+  this.condition = condition
+  this.consequent = consequent
+  this.alternative = alternative
+}
+
 function Comparison (type, left, right) {
   this.type = type
   this.left = left
@@ -77,5 +83,6 @@ module.exports = {
   , Number: Num
   , Namespace: Namespace
   , Assign: Assign
+  , Conditional: Conditional
   , Comparison: Comparison
 }

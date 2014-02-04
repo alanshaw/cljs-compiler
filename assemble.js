@@ -38,6 +38,8 @@ function assemble (translation) {
       lines = lines.concat(genNamespace(t))
     } else if (t instanceof lang.Assign) {
       lines = lines.concat(genAssign(t))
+    } else if (t instanceof lang.Conditional) {
+      lines = lines.concat(genConditional(t))
     } else if (t instanceof lang.Comparison) {
       lines = lines.concat(genComparison(t))
     } else {
@@ -213,6 +215,20 @@ function genAssign (t) {
   return [assemble(t.name)[0] + " = " + assemble(t.val)[0]]
 }
 
+function genConditional (t) {
+  var code = "if (" + assemble(t.condition)[0] + ") {"
+  code += assemble(t.consequent).join(";\n")
+
+  if (t.alternative.length) {
+    code += "} else {"
+    code += assemble(t.alternative).join(";\n")
+  }
+
+  code += "}"
+
+  return [code]
+}
+
 function genComparison (t) {
   return ["(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"]
 }
@@ -228,9 +244,28 @@ function makeJsSafe (val) {
 }
 
 // Search through current scope and parent scopes to see if name exists
+// TODO: FIXME
 function defined (name) {
+  // Assume namespaced vars are defined
+  if (name.indexOf("/") > -1) {
+    return true
+  }
+
+  // Assume accessors exist
+  if (name.indexOf("._") == 0) {
+    return true
+  }
+
+  var localName = null
+
+  if (name.indexOf(".") > -1) {
+    localName = name.slice(0, name.indexOf("."))
+  } else {
+    localName = name
+  }
+
   for (var i = 0; i < state.scopes.length; i++) {
-    if (state.scopes[i].indexOf(name) > -1) {
+    if (state.scopes[i].indexOf(localName) > -1) {
       return true
     }
   }
@@ -291,6 +326,12 @@ function destroyScope () {
 }
 
 module.exports = function (translation) {
+  state = {
+    namespace: "",
+    coreRequired: false,
+    scopeNames: true,
+    scopes: [[]]
+  }
   //console.log(JSON.stringify(translation, null, 2))
   return assemble(translation).join(";\n") + ";"
 }

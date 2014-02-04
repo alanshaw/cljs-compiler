@@ -1,6 +1,14 @@
-var compiler = require("../")
-  , fs = require("fs")
+var fs = require("fs")
+  , compiler = require("../")
 
-var input = fs.readFileSync(__dirname + "/fixtures/client.cljs", {encoding: "utf-8"})
+var fixturesDir = __dirname + "/fixtures"
 
-console.log(compiler.compile(input))
+fs.readdir(fixturesDir, function (er, srcs) {
+  if (er) throw er
+
+  srcs.forEach(function (src) {
+    console.log("> " + src)
+    var input = fs.readFileSync(fixturesDir + "/" + src, {encoding: "utf8"})
+    console.log(compiler.compile(input))
+  })
+})
