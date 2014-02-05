@@ -106,6 +106,17 @@ function list (node) {
             vars.concat(translate(leftNode.right.right))
           )], []
         )]
+      // Loop
+      case "loop":
+        var decs = translate(leftNode.right.left)
+        var vars = []
+        for (var i = 0; i < decs.length; i += 2) {
+          vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
+        }
+        return vars.concat([new lang.While(
+          [new lang.Boolean(true)],
+          translate(leftNode.right.right)
+        )])
       // Function call or property access
       default:
         // Property access on object

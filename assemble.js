@@ -2,7 +2,6 @@ var lang = require("./lang")
 
 var state = {
   namespace: "",
-  coreRequired: false,
   scopeNames: true,
   scopes: [[]]
 }
@@ -42,6 +41,8 @@ function assemble (translation) {
       lines = lines.concat(genConditional(t))
     } else if (t instanceof lang.Comparison) {
       lines = lines.concat(genComparison(t))
+    } else if (t instanceof lang.While) {
+      lines = lines.concat(genWhile(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
@@ -123,20 +124,14 @@ function genVariable (t) {
 }
 
 function genInvoke (t) {
-  var lines = []
   var code = ""
+
+  if (t.last) {
+    code += "return "
+  }
 
   if (t.name[0] instanceof lang.Symbol) {
     var functionName = assemble(t.name).join("")
-
-    if (!defined(functionName) && !state.coreRequired) {
-      state.coreRequired = true
-      lines.push("goog.require('cljs.core')")
-    }
-
-    if (t.last) {
-      code += "return "
-    }
 
     // TODO: This'll eventually be a list of imported namespaces
     var namespaces = ["cljs.core", state.namespace]
@@ -160,11 +155,6 @@ function genInvoke (t) {
     }
 
   } else {
-
-    if (t.last) {
-      code += "return "
-    }
-
     code += assemble(t.name)[0] + "("
   }
 
@@ -176,9 +166,7 @@ function genInvoke (t) {
 
   code += ")"
 
-  lines.push(code)
-
-  return lines
+  return [code]
 }
 
 function genAccessor (t) {
@@ -231,7 +219,7 @@ function genNamespace (t) {
   state.namespace = assemble(t.name)[0]
   state.scopeNames = true
   state.scopes = [[]]
-  return ["goog.provide('" + state.namespace + "')"]
+  return ["goog.provide('" + state.namespace + "')", "goog.require('cljs.core')"]
 }
 
 function genAssign (t) {
@@ -239,7 +227,7 @@ function genAssign (t) {
 }
 
 function genConditional (t) {
-  var code = "if (" + assemble(t.condition)[0] + ") {"
+  var code = "if (" + assemble(t.condition).join(",") + ") {"
 
   if (t.last && t.consequent.length) {
     t.consequent[t.consequent.length - 1].last = true
@@ -267,6 +255,19 @@ function genConditional (t) {
 
 function genComparison (t) {
   return ["(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"]
+}
+
+function genWhile (t) {
+  var code = "while (" + assemble(t.condition).join(",") + ") {"
+
+  if (t.last && t.body.length) {
+    t.body[t.body.length - 1].last = true
+  }
+
+  code += assemble(t.body).join(";\n")
+  code += "}"
+
+  return [code]
 }
 
 // Utility
@@ -364,7 +365,6 @@ function destroyScope () {
 module.exports = function (translation) {
   state = {
     namespace: "",
-    coreRequired: false,
     scopeNames: true,
     scopes: [[]]
   }

@@ -79,6 +79,11 @@ function Comparison (type, left, right) {
   this.right = right
 }
 
+function While (condition, body) {
+  this.condition = condition
+  this.body = body
+}
+
 module.exports = {
     Function: Func
   , Lambda: Lambda
@@ -95,4 +100,5 @@ module.exports = {
   , Assign: Assign
   , Conditional: Conditional
   , Comparison: Comparison
+  , While: While
 }
