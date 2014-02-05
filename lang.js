@@ -2,11 +2,21 @@ function Func (name, args, body) {
   this.name = name
   this.args = args
   this.body = body
+
+  // Flag the last statement so it knows it needs to return a value
+  if (body.length) {
+    body[body.length - 1].last = true
+  }
 }
 
 function Lambda (args, body) {
   this.args = args
   this.body = body
+
+  // Flag the last statement so it knows it needs to return a value
+  if (body.length) {
+    body[body.length - 1].last = true
+  }
 }
 
 function FuncArgs (val) {

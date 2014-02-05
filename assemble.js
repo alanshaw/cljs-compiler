@@ -74,16 +74,7 @@ function genFunction (t) {
   state.scopeNames = true
 
   code += ") {"
-
-  var assembledBody = assemble(t.body)
-
-  if (assembledBody.length > 1) {
-    code += assembledBody.slice(0, assembledBody.length - 1).join(";\n")
-    code += ";\nreturn " + assembledBody[assembledBody.length - 1]
-  } else if (t.body.length) {
-    code += "return " + assembledBody[0]
-  }
-
+  code += assemble(t.body).join(";\n")
   code += "}"
 
   destroyScope()
@@ -106,16 +97,7 @@ function genLambda (t) {
   state.scopeNames = true
 
   code += ") {"
-
-  var assembledBody = assemble(t.body)
-
-  if (assembledBody.length > 1) {
-    code += assembledBody.slice(0, assembledBody.length - 1).join(";\n")
-    code += ";\nreturn " + assembledBody[assembledBody.length - 1]
-  } else if (t.body.length) {
-    code += "return " + assembledBody[0]
-  }
-
+  code += assemble(t.body).join(";\n")
   code += "})"
 
   destroyScope()
@@ -152,6 +134,10 @@ function genInvoke (t) {
       lines.push("goog.require('cljs.core')")
     }
 
+    if (t.last) {
+      code += "return "
+    }
+
     // TODO: This'll eventually be a list of imported namespaces
     var namespaces = ["cljs.core", state.namespace]
     var namespaced = false
@@ -174,6 +160,11 @@ function genInvoke (t) {
     }
 
   } else {
+
+    if (t.last) {
+      code += "return "
+    }
+
     code += assemble(t.name)[0] + "("
   }
 
@@ -200,19 +191,39 @@ function genKeyword (t) {
 }
 
 function genSymbol (t) {
-  return [scopedName(t.name)]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += scopedName(t.name)
+  return [code]
 }
 
 function genString (t) {
-  return ['"' + t.val.replace(/"/g, '\\"') + '"']
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += '"' + t.val.replace(/"/g, '\\"') + '"'
+  return [code]
 }
 
 function genNumber (t) {
-  return [t.val.toString()]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += t.val.toString()
+  return [code]
 }
 
 function genBoolean (t) {
-  return [t.val.toString()]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += t.val.toString()
+  return [code]
 }
 
 function genNamespace (t) {
@@ -229,11 +240,24 @@ function genAssign (t) {
 
 function genConditional (t) {
   var code = "if (" + assemble(t.condition)[0] + ") {"
+
+  if (t.last && t.consequent.length) {
+    t.consequent[t.consequent.length - 1].last = true
+  }
+
   code += assemble(t.consequent).join(";\n")
+
+  if (t.last && t.alternative.length) {
+    t.alternative[t.alternative.length - 1].last = true
+  }
 
   if (t.alternative.length) {
     code += "} else {"
     code += assemble(t.alternative).join(";\n")
+  } else {
+    if (t.last) {
+      code += "} else {\nreturn null;"
+    }
   }
 
   code += "}"
