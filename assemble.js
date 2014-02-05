@@ -280,35 +280,6 @@ function makeJsSafe (val) {
     .replace(/=/g, "_EQ_")
 }
 
-// Search through current scope and parent scopes to see if name exists
-// TODO: FIXME
-function defined (name) {
-  // Assume namespaced vars are defined
-  if (name.indexOf("/") > -1) {
-    return true
-  }
-
-  // Assume accessors exist
-  if (name.indexOf("._") == 0) {
-    return true
-  }
-
-  var localName = null
-
-  if (name.indexOf(".") > -1) {
-    localName = name.slice(0, name.indexOf("."))
-  } else {
-    localName = name
-  }
-
-  for (var i = 0; i < state.scopes.length; i++) {
-    if (state.scopes[i].indexOf(localName) > -1) {
-      return true
-    }
-  }
-  return false
-}
-
 function scopedName (name) {
   name = makeJsSafe(name)
 
