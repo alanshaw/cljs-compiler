@@ -1,6 +1,8 @@
 cljs-compiler [![Build Status](https://travis-ci.org/alanshaw/cljs-compiler.png)](https://travis-ci.org/alanshaw/cljs-compiler) [![Dependency Status](https://david-dm.org/alanshaw/cljs-compiler.png?theme=shields.io)](https://david-dm.org/alanshaw/cljs-compiler)
 ===
 
+A clojurescript compiler written in JavaScript.
+
 Can compile hello world:
 
 ```clojurescript
@@ -17,8 +19,7 @@ Into:
 
 ```js
 goog.provide('hello.core');
-hello.core._main = function _main () {goog.require('cljs.core');
-return cljs.core.println.call(null, "Hello World")
-};
+goog.require('cljs.core');
+hello.core._main = function _main () {return cljs.core.println.call(null, "Hello World")};
 cljs.core._STAR_main_cli_fn_STAR_ = hello.core._main;
 ```
