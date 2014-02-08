@@ -45,6 +45,14 @@ function assemble (translation) {
       lines = lines.concat(genWhile(t))
     } else if (t instanceof lang.Continue) {
       lines = lines.concat(genContinue(t))
+    } else if (t instanceof lang.Scope) {
+      lines = lines.concat(genScope(t))
+    } else if (t instanceof lang.IndexedSymbol) {
+      lines = lines.concat(genIndexedSymbol(t))
+    } else if (t instanceof lang.Add) {
+      lines = lines.concat(genAdd(t))
+    } else if (t instanceof lang.Subtract) {
+      lines = lines.concat(genSubtract(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
@@ -274,6 +282,35 @@ function genWhile (t) {
 
 function genContinue (t) {
   return ["continue"]
+}
+
+function genScope (t) {
+  if (t.last && t.body.length) {
+    t.body[t.body.length - 1].last = true
+  }
+
+  createScope()
+  var code = assemble(t.body).join(";\n")
+  destroyScope()
+
+  return [code]
+}
+
+function genIndexedSymbol (t) {
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += state.scopes[0][t.index]
+  return [code]
+}
+
+function genAdd (t) {
+  return [assemble(t.left)[0] + " + " + assemble(t.right)[0]]
+}
+
+function genSubtract (t) {
+  return [assemble(t.left)[0] + " - " + assemble(t.right)[0]]
 }
 
 // Utility

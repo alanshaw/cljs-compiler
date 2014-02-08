@@ -86,6 +86,26 @@ function While (condition, body) {
 
 function Continue () {}
 
+// Explicit scope creation
+function Scope (body) {
+  this.body = body
+}
+
+// Refers to a symbol in scope by index
+function IndexedSymbol (i) {
+  this.index = i
+}
+
+function Add (left, right) {
+  this.left = left
+  this.right = right
+}
+
+function Subtract (left, right) {
+  this.left = left
+  this.right = right
+}
+
 module.exports = {
     Function: Func
   , Lambda: Lambda
@@ -104,4 +124,8 @@ module.exports = {
   , Comparison: Comparison
   , While: While
   , Continue: Continue
+  , Scope: Scope
+  , IndexedSymbol: IndexedSymbol
+  , Add: Add
+  , Subtract: Subtract
 }

@@ -110,15 +110,33 @@ function list (node) {
       case "loop":
         var decs = translate(leftNode.right.left)
         var vars = []
+
         for (var i = 0; i < decs.length; i += 2) {
           vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
         }
-        return vars.concat([new lang.While(
+
+        // Create a transparent scope for the recur's IndexedSymbols
+        var scope = new lang.Scope(vars.concat([new lang.While(
           [new lang.Boolean(true)],
           translate(leftNode.right.right)
-        )])
+        )]))
+
+        return [scope]
       case "recur":
-        return translate(leftNode.right).concat(new lang.Continue())
+        var assigns = translate(leftNode.right).map(function (val, i) {
+          return new lang.Assign([new lang.IndexedSymbol(i)], [val])
+        })
+        return assigns.concat(new lang.Continue())
+      case "inc":
+        return [new lang.Add(
+          translate(leftNode.right.left),
+          [new lang.Number(1)]
+        )]
+      case "dec":
+        return [new lang.Subtract(
+          translate(leftNode.right.left),
+          [new lang.Number(1)]
+        )]
       // Function call or property access
       default:
         // Property access on object
