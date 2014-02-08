@@ -25,6 +25,11 @@ function listList (node) {
 
 function list (node) {
   var leftNode = node.left
+
+  if (!leftNode) {
+    return []
+  }
+
   if (leftNode.left.type == "leaf" && leftNode.left.left.type == "symbol") {
     var left = translate(leftNode.left)
     switch (left[0].name) {

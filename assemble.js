@@ -165,7 +165,7 @@ function genInvoke (t) {
     }
 
   } else {
-    code += assemble(t.name)[0] + "("
+    code += assemble(t.name).join("") + "("
   }
 
   if (t.args.length) {
