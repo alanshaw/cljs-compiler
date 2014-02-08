@@ -46,13 +46,17 @@ function list (node) {
       case "defn":
         return [new lang.Function(
           translate(leftNode.right.left),
-          new lang.FuncArgs(translate(leftNode.right.right.left)),
+          new lang.FuncArgs(
+            translate(leftNode.right.right.left.left).concat(translate(leftNode.right.right.left.right))
+          ),
           translate(leftNode.right.right.right)
         )]
       // Lambda function
       case "fn":
         return [new lang.Lambda(
-          new lang.FuncArgs(translate(leftNode.right.left)),
+          new lang.FuncArgs(
+            translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
+          ),
           translate(leftNode.right.right)
         )]
       // Assignment
@@ -100,7 +104,7 @@ function list (node) {
         )]
       // Variable declarations
       case "let":
-        var decs = translate(leftNode.right.left)
+        var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
         var vars = []
         for (var i = 0; i < decs.length; i += 2) {
           vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
@@ -113,7 +117,7 @@ function list (node) {
         )]
       // Loop
       case "loop":
-        var decs = translate(leftNode.right.left)
+        var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
         var vars = []
 
         for (var i = 0; i < decs.length; i += 2) {
@@ -165,8 +169,21 @@ function sExpList (node) {
   return translate(node.left).concat(translate(node.right))
 }
 
+var vectorCount = 0
+
 function vector (node) {
-  return translate(node.left).concat(translate(node.right))
+  vectorCount++
+  return [new lang.New(
+    [new lang.Symbol("PersistentVector")],
+    [
+      new lang.Symbol("js/null"),
+      new lang.Number(vectorCount),
+      new lang.Number(5), // TODO: What is the magic 5?
+      new lang.Symbol("PersistentVector.EMPTY_NODE") // TODO: What is root?
+    ].concat(
+      new lang.Array(translate(node.left).concat(translate(node.right)))
+    ).concat([new lang.Symbol("js/null")]) // TODO: What is whatever this is?
+  )]
 }
 
 function keyword (node) {

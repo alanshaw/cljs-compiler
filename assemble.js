@@ -21,6 +21,8 @@ function assemble (translation) {
       lines = lines.concat(genVariable(t))
     } else if (t instanceof lang.Invoke) {
       lines = lines.concat(genInvoke(t))
+    } else if (t instanceof lang.New) {
+      lines = lines.concat(genNew(t))
     } else if (t instanceof lang.Accessor) {
       lines = lines.concat(genAccessor(t))
     } else if (t instanceof lang.Keyword) {
@@ -53,6 +55,8 @@ function assemble (translation) {
       lines = lines.concat(genAdd(t))
     } else if (t instanceof lang.Subtract) {
       lines = lines.concat(genSubtract(t))
+    } else if (t instanceof lang.Array) {
+      lines = lines.concat(genArray(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
@@ -179,6 +183,26 @@ function genInvoke (t) {
   return [code]
 }
 
+function genNew (t) {
+  var code = ""
+
+  if (t.last) {
+    code += "return "
+  }
+
+  code += "new " + assemble(t.name).join("") + "("
+
+  if (t.args.length) {
+    code += t.args.map(function (arg) {
+      return assemble([arg])[0]
+    }).join(", ")
+  }
+
+  code += ")"
+
+  return [code]
+}
+
 function genAccessor (t) {
   var prop = assemble(t.prop)[0]
   return [assemble(t.obj).join("") + prop.replace(/^\._/, ".")]
@@ -229,7 +253,7 @@ function genNamespace (t) {
   state.namespace = assemble(t.name)[0]
   state.scopeNames = true
   state.scopes = [[]]
-  return ["goog.provide('" + state.namespace + "')", "goog.require('cljs.core')"]
+  return ['goog.provide("' + state.namespace + '")', 'goog.require("cljs.core")']
 }
 
 function genAssign (t) {
@@ -320,6 +344,24 @@ function genSubtract (t) {
     code += "return "
   }
   code += assemble(t.left)[0] + " - " + assemble(t.right)[0]
+  return [code]
+}
+
+function genArray (t) {
+  var code = ""
+
+  if (t.last) {
+    code += "return "
+  }
+
+  code += "["
+
+  code += t.vals.map(function (val) {
+    return assemble([val])[0]
+  }).join(", ")
+
+  code += "]"
+
   return [code]
 }
 

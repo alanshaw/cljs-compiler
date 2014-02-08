@@ -33,6 +33,11 @@ function Invoke (name, args) {
   this.args = args
 }
 
+function New (name, args) {
+  this.name = name
+  this.args = args
+}
+
 function Accessor (obj, prop) {
   this.obj = obj
   this.prop = prop
@@ -106,12 +111,17 @@ function Subtract (left, right) {
   this.right = right
 }
 
+function Array (vals) {
+  this.vals = vals
+}
+
 module.exports = {
     Function: Func
   , Lambda: Lambda
   , FuncArgs: FuncArgs
   , Variable: Variable
   , Invoke: Invoke
+  , New: New
   , Accessor: Accessor
   , Keyword: Keyword
   , Symbol: Symbol
@@ -128,4 +138,5 @@ module.exports = {
   , IndexedSymbol: IndexedSymbol
   , Add: Add
   , Subtract: Subtract
+  , Array: Array
 }
