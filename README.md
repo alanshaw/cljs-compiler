@@ -1,7 +1,9 @@
 cljs-compiler [![Build Status](https://travis-ci.org/alanshaw/cljs-compiler.png)](https://travis-ci.org/alanshaw/cljs-compiler) [![Dependency Status](https://david-dm.org/alanshaw/cljs-compiler.png?theme=shields.io)](https://david-dm.org/alanshaw/cljs-compiler)
 ===
 
-A clojurescript compiler written in JavaScript.
+A ClojureScript compiler written in JavaScript.
+
+[Demo page](http://alanshaw.github.io/cljs-compiler/)
 
 Can compile hello world:
 
