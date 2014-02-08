@@ -331,6 +331,7 @@ function makeJsSafe (val) {
     .replace(/\*/g, "_STAR_")
     .replace(/!/g, "_BANG_")
     .replace(/=/g, "_EQ_")
+    .replace(/\?/g, "_QMARK_")
 }
 
 function scopedName (name) {
