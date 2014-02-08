@@ -306,11 +306,21 @@ function genIndexedSymbol (t) {
 }
 
 function genAdd (t) {
-  return [assemble(t.left)[0] + " + " + assemble(t.right)[0]]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += assemble(t.left)[0] + " + " + assemble(t.right)[0]
+  return [code]
 }
 
 function genSubtract (t) {
-  return [assemble(t.left)[0] + " - " + assemble(t.right)[0]]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += assemble(t.left)[0] + " - " + assemble(t.right)[0]
+  return [code]
 }
 
 // Utility
