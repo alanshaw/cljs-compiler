@@ -84,6 +84,8 @@ function While (condition, body) {
   this.body = body
 }
 
+function Continue () {}
+
 module.exports = {
     Function: Func
   , Lambda: Lambda
@@ -101,4 +103,5 @@ module.exports = {
   , Conditional: Conditional
   , Comparison: Comparison
   , While: While
+  , Continue: Continue
 }

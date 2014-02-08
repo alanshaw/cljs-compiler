@@ -43,6 +43,8 @@ function assemble (translation) {
       lines = lines.concat(genComparison(t))
     } else if (t instanceof lang.While) {
       lines = lines.concat(genWhile(t))
+    } else if (t instanceof lang.Continue) {
+      lines = lines.concat(genContinue(t))
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
@@ -268,6 +270,10 @@ function genWhile (t) {
   code += "}"
 
   return [code]
+}
+
+function genContinue (t) {
+  return ["continue"]
 }
 
 // Utility

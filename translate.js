@@ -117,6 +117,8 @@ function list (node) {
           [new lang.Boolean(true)],
           translate(leftNode.right.right)
         )])
+      case "recur":
+        return translate(leftNode.right).concat(new lang.Continue())
       // Function call or property access
       default:
         // Property access on object
