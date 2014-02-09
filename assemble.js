@@ -98,7 +98,13 @@ function genFunction (t) {
 }
 
 function genLambda (t) {
-  var code = "(function ("
+  var code = ""
+
+  if (t.last) {
+    code += "return "
+  }
+
+  code = "(function ("
 
   // Create a new scope where the function parameters will be declared
   createScope()
