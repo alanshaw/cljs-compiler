@@ -1,4 +1,5 @@
 var lang = require("./lang")
+  , placeholders = require("./util/placeholders")
 
 function translate (node) {
   if (!node) return []
@@ -176,7 +177,7 @@ function vector (node) {
   return [new lang.New(
     [new lang.Symbol("PersistentVector")],
     [
-      new lang.Symbol("js/null"),
+      new lang.Symbol("js/null"), // TODO: Add meta data
       new lang.Number(vectorCount),
       new lang.Number(5), // TODO: What is the magic 5?
       new lang.Symbol("PersistentVector.EMPTY_NODE") // TODO: What is root?
@@ -211,7 +212,15 @@ function macro (node) {
     case "deref":
       var invoke = new lang.Invoke([new lang.Symbol("deref")], translate(node.right))
       return [invoke]
+    // TODO: Dispatch macro changes function depending on context below is for "#("
+    case "dispatch":
+      var args = placeholders.transform(node)
+      return [new lang.Lambda(
+        new lang.FuncArgs(args),
+        translate(node.right)
+      )]
   }
+  return []
 }
 
 module.exports = function (t) {
