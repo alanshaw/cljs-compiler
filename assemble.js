@@ -263,7 +263,15 @@ function genNamespace (t) {
 }
 
 function genAssign (t) {
-  return [assemble(t.name)[0] + " = " + assemble(t.val)[0]]
+  var code = ""
+
+  if (t.last) {
+    code += "return "
+  }
+
+  code += assemble(t.name)[0] + " = " + assemble(t.val)[0]
+
+  return [code]
 }
 
 function genConditional (t) {
