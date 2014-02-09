@@ -104,7 +104,7 @@ function genLambda (t) {
     code += "return "
   }
 
-  code = "(function ("
+  code += "(function ("
 
   // Create a new scope where the function parameters will be declared
   createScope()
