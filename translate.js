@@ -137,13 +137,24 @@ function list (node) {
           return new lang.Assign([new lang.IndexedSymbol(i)], [val])
         })
         return assigns.concat(new lang.Continue())
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+        return [new lang.Math(
+          left,
+          translate(leftNode.right.left),
+          translate(leftNode.right.right)
+        )]
       case "inc":
-        return [new lang.Add(
+        return [new lang.Math(
+          [new lang.Symbol("+")],
           translate(leftNode.right.left),
           [new lang.Number(1)]
         )]
       case "dec":
-        return [new lang.Subtract(
+        return [new lang.Math(
+          [new lang.Symbol("-")],
           translate(leftNode.right.left),
           [new lang.Number(1)]
         )]

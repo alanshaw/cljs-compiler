@@ -101,12 +101,8 @@ function IndexedSymbol (i) {
   this.index = i
 }
 
-function Add (left, right) {
-  this.left = left
-  this.right = right
-}
-
-function Subtract (left, right) {
+function Math (operator, left, right) {
+  this.operator = operator
   this.left = left
   this.right = right
 }
@@ -136,7 +132,6 @@ module.exports = {
   , Continue: Continue
   , Scope: Scope
   , IndexedSymbol: IndexedSymbol
-  , Add: Add
-  , Subtract: Subtract
+  , Math: Math
   , Array: Array
 }

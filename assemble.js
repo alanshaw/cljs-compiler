@@ -51,10 +51,8 @@ function assemble (translation) {
       lines = lines.concat(genScope(t))
     } else if (t instanceof lang.IndexedSymbol) {
       lines = lines.concat(genIndexedSymbol(t))
-    } else if (t instanceof lang.Add) {
-      lines = lines.concat(genAdd(t))
-    } else if (t instanceof lang.Subtract) {
-      lines = lines.concat(genSubtract(t))
+    } else if (t instanceof lang.Math) {
+      lines = lines.concat(genMath(t))
     } else if (t instanceof lang.Array) {
       lines = lines.concat(genArray(t))
     } else {
@@ -343,21 +341,12 @@ function genIndexedSymbol (t) {
   return [code]
 }
 
-function genAdd (t) {
+function genMath (t) {
   var code = ""
   if (t.last) {
     code += "return "
   }
-  code += assemble(t.left)[0] + " + " + assemble(t.right)[0]
-  return [code]
-}
-
-function genSubtract (t) {
-  var code = ""
-  if (t.last) {
-    code += "return "
-  }
-  code += assemble(t.left)[0] + " - " + assemble(t.right)[0]
+  code += assemble(t.left)[0] + " " + t.operator[0].name + " " + assemble(t.right)[0]
   return [code]
 }
 
