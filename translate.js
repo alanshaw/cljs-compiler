@@ -188,7 +188,14 @@ function vector (node) {
 }
 
 function keyword (node) {
-  return [new lang.Keyword(node.val)]
+  return [new lang.New(
+    [new lang.Symbol("Keyword")],
+    [
+      new lang.Symbol("js/null"), // TODO: Add ns?
+      new lang.String(node.val.replace(":", "")),
+      new lang.String(node.val.replace(":", "")) // TODO: fqn?
+    ]
+  )]
 }
 
 function symbol (node) {
