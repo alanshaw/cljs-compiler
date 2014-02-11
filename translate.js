@@ -147,7 +147,12 @@ function list (node) {
           return tempVar.concat(conditional)
         }
 
-        return consequent(0)
+        return [new lang.Invoke(
+          [new lang.Lambda(
+            new lang.FuncArgs([]),
+            consequent(0)
+          )], []
+        )]
       case "or":
         var decs = translate(leftNode.right)
 
@@ -163,7 +168,12 @@ function list (node) {
           return tempVar.concat(conditional)
         }
 
-        return alternative(0)
+        return [new lang.Invoke(
+          [new lang.Lambda(
+            new lang.FuncArgs([]),
+            alternative(0)
+          )], []
+        )]
       // Variable declarations
       case "let":
         var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
