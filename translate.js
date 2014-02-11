@@ -79,7 +79,7 @@ function list (node) {
         var decs = translate(leftNode.right.left.left)
 
         // Create temp var to store result of [decs[1]]
-        var tempVar = [new lang.Symbol(varName())]
+        var tempVar = [new lang.Symbol(varName("if_let"))]
         var vars = [new lang.Variable(tempVar, [decs[1]])]
 
         // If the test is true then assign tempVar to [decs[0]]
@@ -136,7 +136,7 @@ function list (node) {
         var decs = translate(leftNode.right)
 
         function consequent (index) {
-          var tempSym = [new lang.Symbol(varName())]
+          var tempSym = [new lang.Symbol(varName("and"))]
             , tempVar = [new lang.Variable(tempSym, [decs[index]])]
             , conditional
           if (decs[index + 2]) {
@@ -148,6 +148,22 @@ function list (node) {
         }
 
         return consequent(0)
+      case "or":
+        var decs = translate(leftNode.right)
+
+        function alternative (index) {
+          var tempSym = [new lang.Symbol(varName("or"))]
+            , tempVar = [new lang.Variable(tempSym, [decs[index]])]
+            , conditional
+          if (decs[index + 2]) {
+            conditional = [new lang.Conditional(tempSym, tempSym, alternative(index + 1))]
+          } else {
+            conditional = [new lang.Conditional(tempSym, tempSym, [decs[index + 1]])]
+          }
+          return tempVar.concat(conditional)
+        }
+
+        return alternative(0)
       // Variable declarations
       case "let":
         var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))

@@ -25,7 +25,7 @@ function transform (node, args) {
       index = parseInt(index, 10)
 
       for (var i = 0; i < index + 1; i++) {
-        args[i] = args[i] || new lang.Symbol(varName())
+        args[i] = args[i] || new lang.Symbol(varName("p" + i))
       }
 
       node.left.val = args[index].name
