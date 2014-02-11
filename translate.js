@@ -83,7 +83,7 @@ function list (node) {
         var vars = [new lang.Variable(tempVar, [decs[1]])]
 
         // If the test is true then assign tempVar to [decs[0]]
-        var assign = [new lang.Assign([decs[0]], tempVar)]
+        var assign = [new lang.Variable([decs[0]], tempVar)]
 
         var condition = [new lang.Conditional(
           tempVar,
