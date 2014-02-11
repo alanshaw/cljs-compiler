@@ -127,6 +127,27 @@ function list (node) {
           translate(leftNode.right.left),
           translate(leftNode.right.right)
         )]
+      case "and":
+        // Wow, such messed up logic:
+        // Evaluates exprs one at a time, from left to right. If a form
+        // returns logical false (nil or false), and returns that value and
+        // doesn't evaluate any of the other expressions, otherwise it returns
+        // the value of the last expr. (and) returns true.
+        var decs = translate(leftNode.right)
+
+        function consequent (index) {
+          var tempSym = [new lang.Symbol(varName())]
+            , tempVar = [new lang.Variable(tempSym, [decs[index]])]
+            , conditional
+          if (decs[index + 2]) {
+            conditional = [new lang.Conditional(tempSym, consequent(index + 1), tempSym)]
+          } else {
+            conditional = [new lang.Conditional(tempSym, [decs[index + 1]], tempSym)]
+          }
+          return tempVar.concat(conditional)
+        }
+
+        return consequent(0)
       // Variable declarations
       case "let":
         var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
