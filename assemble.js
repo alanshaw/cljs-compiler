@@ -373,6 +373,7 @@ function genArray (t) {
 function makeJsSafe (val) {
   return val
     .replace(/-/g, "_")
+    .replace(/\+/g, "_PLUS_")
     .replace(/\*/g, "_STAR_")
     .replace(/!/g, "_BANG_")
     .replace(/=/g, "_EQ_")

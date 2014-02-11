@@ -1,5 +1,6 @@
 var lang = require("./lang")
   , placeholders = require("./util/placeholders")
+  , varName = require("./util/var-name")
 
 function translate (node) {
   if (!node) return []
@@ -72,6 +73,29 @@ function list (node) {
           translate(leftNode.right.left),
           translate(leftNode.right.right.left),
           translate(leftNode.right.right.right)
+        )]
+      case "if-let":
+        // TODO: Warn if leftNode.right.left.right only 2 forms allowed
+        var decs = translate(leftNode.right.left.left)
+
+        // Create temp var to store result of [decs[1]]
+        var tempVar = [new lang.Symbol(varName())]
+        var vars = [new lang.Variable(tempVar, [decs[1]])]
+
+        // If the test is true then assign tempVar to [decs[0]]
+        var assign = [new lang.Assign([decs[0]], tempVar)]
+
+        var condition = [new lang.Conditional(
+          tempVar,
+          assign.concat(translate(leftNode.right.right.left)),
+          translate(leftNode.right.right.right)
+        )]
+
+        return  [new lang.Invoke(
+          [new lang.Lambda(
+            new lang.FuncArgs([]),
+            vars.concat(condition)
+          )], []
         )]
       case "when":
         return [new lang.Conditional(
