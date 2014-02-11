@@ -89,6 +89,12 @@ function While (condition, body) {
   this.body = body
 }
 
+// Like a while, but with an implicit true condition, and break inserted after body
+// Assumed that body will "continue" to continue the loop if required
+function WhileTrue (body) {
+  this.body = body
+}
+
 function Continue () {}
 
 // Explicit scope creation
@@ -129,6 +135,7 @@ module.exports = {
   , Conditional: Conditional
   , Comparison: Comparison
   , While: While
+  , WhileTrue: WhileTrue
   , Continue: Continue
   , Scope: Scope
   , IndexedSymbol: IndexedSymbol

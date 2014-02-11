@@ -74,6 +74,15 @@ function list (node) {
           translate(leftNode.right.right.left),
           translate(leftNode.right.right.right)
         )]
+      case "if-not":
+        return [new lang.Conditional(
+          [new lang.Invoke(
+            [new lang.Symbol("not")],
+            translate(leftNode.right.left)
+          )],
+          translate(leftNode.right.right.left),
+          translate(leftNode.right.right.right)
+        )]
       case "if-let":
         // TODO: Warn if leftNode.right.left.right only 2 forms allowed
         var decs = translate(leftNode.right.left.left)
@@ -197,8 +206,7 @@ function list (node) {
         }
 
         // Create a transparent scope for the recur's IndexedSymbols
-        var scope = new lang.Scope(vars.concat([new lang.While(
-          [new lang.Boolean(true)],
+        var scope = new lang.Scope(vars.concat([new lang.WhileTrue(
           translate(leftNode.right.right)
         )]))
 
@@ -207,7 +215,7 @@ function list (node) {
         var assigns = translate(leftNode.right).map(function (val, i) {
           return new lang.Assign([new lang.IndexedSymbol(i)], [val])
         })
-        return assigns.concat(new lang.Continue())
+        return assigns.concat([new lang.Continue()])
       case "+":
       case "-":
       case "*":

@@ -45,6 +45,8 @@ function assemble (translation) {
       lines = lines.concat(genComparison(t))
     } else if (t instanceof lang.While) {
       lines = lines.concat(genWhile(t))
+    } else if (t instanceof lang.WhileTrue) {
+      lines = lines.concat(genWhileTrue(t))
     } else if (t instanceof lang.Continue) {
       lines = lines.concat(genContinue(t))
     } else if (t instanceof lang.Scope) {
@@ -312,6 +314,19 @@ function genWhile (t) {
 
   code += assemble(t.body).join(";\n")
   code += "}"
+
+  return [code]
+}
+
+function genWhileTrue (t) {
+  var code = "while (true) {"
+
+  if (t.last && t.body.length) {
+    t.body[t.body.length - 1].last = true
+  }
+
+  code += assemble(t.body).join(";\n")
+  code += "break}"
 
   return [code]
 }
