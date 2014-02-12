@@ -314,7 +314,12 @@ function genConditional (t) {
 }
 
 function genComparison (t) {
-  return ["(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"]
+  var code = ""
+  if (t.last) {
+    code += "return "
+  }
+  code += "(" + assemble(t.left) + " " + t.type[0].name + " " + assemble(t.right) + ")"
+  return [code]
 }
 
 function genWhile (t) {
