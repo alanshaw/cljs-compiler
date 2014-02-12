@@ -1,3 +1,9 @@
+var inherits = require("util").inherits
+
+// Language construct superclass (if, while etc.)
+function Construct () {}
+
+// Function definition
 function Func (name, args, body) {
   this.name = name
   this.args = args
@@ -9,6 +15,7 @@ function Func (name, args, body) {
   }
 }
 
+// Anonymous function
 function Lambda (args, body) {
   this.args = args
   this.body = body
@@ -17,10 +24,6 @@ function Lambda (args, body) {
   if (body.length) {
     body[body.length - 1].last = true
   }
-}
-
-function FuncArgs (val) {
-  this.val = val
 }
 
 function Variable (name, val) {
@@ -78,6 +81,8 @@ function Conditional (condition, consequent, alternative) {
   this.alternative = alternative
 }
 
+inherits(Conditional, Construct)
+
 function Comparison (type, left, right) {
   this.type = type
   this.left = left
@@ -89,11 +94,15 @@ function While (condition, body) {
   this.body = body
 }
 
+inherits(While, Construct)
+
 // Like a while, but with an implicit true condition, and break inserted after body
 // Assumed that body will "continue" to continue the loop if required
 function WhileTrue (body) {
   this.body = body
 }
+
+inherits(WhileTrue, Construct)
 
 function Continue () {}
 
@@ -118,9 +127,9 @@ function Array (vals) {
 }
 
 module.exports = {
-    Function: Func
+    Construct: Construct
+  , Function: Func
   , Lambda: Lambda
-  , FuncArgs: FuncArgs
   , Variable: Variable
   , Invoke: Invoke
   , New: New

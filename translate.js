@@ -48,17 +48,13 @@ function list (node) {
       case "defn":
         return [new lang.Function(
           translate(leftNode.right.left),
-          new lang.FuncArgs(
-            translate(leftNode.right.right.left.left).concat(translate(leftNode.right.right.left.right))
-          ),
+          translate(leftNode.right.right.left.left).concat(translate(leftNode.right.right.left.right)),
           translate(leftNode.right.right.right)
         )]
       // Lambda function
       case "fn":
         return [new lang.Lambda(
-          new lang.FuncArgs(
-            translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
-          ),
+          translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right)),
           translate(leftNode.right.right)
         )]
       // Assignment
@@ -100,12 +96,7 @@ function list (node) {
           translate(leftNode.right.right.right)
         )]
 
-        return  [new lang.Invoke(
-          [new lang.Lambda(
-            new lang.FuncArgs([]),
-            vars.concat(condition)
-          )], []
-        )]
+        return vars.concat(condition)
       case "when":
         return [new lang.Conditional(
           translate(leftNode.right.left),
@@ -113,12 +104,7 @@ function list (node) {
           []
         )]
       case "do":
-        return [new lang.Invoke(
-          [new lang.Lambda(
-            new lang.FuncArgs([]),
-            translate(leftNode.right)
-          )], []
-        )]
+        return translate(leftNode.right)
       // Comparison
       case "<":
       case ">":
@@ -156,12 +142,7 @@ function list (node) {
           return tempVar.concat(conditional)
         }
 
-        return [new lang.Invoke(
-          [new lang.Lambda(
-            new lang.FuncArgs([]),
-            consequent(0)
-          )], []
-        )]
+        return consequent(0)
       case "or":
         var decs = translate(leftNode.right)
 
@@ -177,12 +158,7 @@ function list (node) {
           return tempVar.concat(conditional)
         }
 
-        return [new lang.Invoke(
-          [new lang.Lambda(
-            new lang.FuncArgs([]),
-            alternative(0)
-          )], []
-        )]
+        return alternative(0)
       // Variable declarations
       case "let":
         var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
@@ -190,12 +166,7 @@ function list (node) {
         for (var i = 0; i < decs.length; i += 2) {
           vars.push(new lang.Variable([decs[i]], [decs[i + 1]]))
         }
-        return  [new lang.Invoke(
-          [new lang.Lambda(
-            new lang.FuncArgs([]),
-            vars.concat(translate(leftNode.right.right))
-          )], []
-        )]
+        return vars.concat(translate(leftNode.right.right))
       // Loop
       case "loop":
         var decs = translate(leftNode.right.left.left).concat(translate(leftNode.right.left.right))
@@ -311,9 +282,8 @@ function macro (node) {
       return [invoke]
     // TODO: Dispatch macro changes function depending on context below is for "#("
     case "dispatch":
-      var args = placeholders.transform(node)
       return [new lang.Lambda(
-        new lang.FuncArgs(args),
+        placeholders.transform(node),
         translate(node.right)
       )]
   }

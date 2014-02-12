@@ -81,7 +81,7 @@ function genFunction (t) {
   createScope()
 
   state.scopeNames = false
-  code += t.args.val.map(function (arg) {
+  code += t.args.map(function (arg) {
     var name = assemble([arg])[0]
     addDefinition(name)
     return name
@@ -110,7 +110,7 @@ function genLambda (t) {
   createScope()
 
   state.scopeNames = false
-  code += t.args.val.map(function (arg) {
+  code += t.args.map(function (arg) {
     var name = assemble([arg])[0]
     addDefinition(name)
     return name
@@ -180,7 +180,11 @@ function genInvoke (t) {
 
   if (t.args.length) {
     code += t.args.map(function (arg) {
-      return assemble([arg])[0]
+      if (arg instanceof lang.Construct || arg instanceof lang.Variable) {
+        return assemble([new lang.Invoke([new lang.Lambda([], arg)], [])])[0]
+      } else {
+        return assemble([arg])[0]
+      }
     }).join(", ")
   }
 
@@ -275,7 +279,15 @@ function genAssign (t) {
 }
 
 function genConditional (t) {
-  var code = "if (" + assemble(t.condition).join(",") + ") {"
+  var code = "if ("
+
+  if (t.condition[0] instanceof lang.Construct || t.condition[0] instanceof lang.Variable) {
+    code += assemble([new lang.Invoke([new lang.Lambda([], t.condition)], [])])[0]
+  } else {
+    code += assemble(t.condition).join(",")
+  }
+
+  code += ") {"
 
   if (t.last && t.consequent.length) {
     t.consequent[t.consequent.length - 1].last = true
@@ -332,7 +344,7 @@ function genWhileTrue (t) {
 }
 
 function genContinue (t) {
-  return ["continue"]
+  return ["continue;"]
 }
 
 function genScope (t) {
