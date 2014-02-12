@@ -1,6 +1,6 @@
 var parser = require("cljs-parser")
   , translate = require("./translate")
-  , assemble = require("./assemble")
+  , assemble = require("./assemble/")
 
 module.exports.compile = function (input) {
   var tree = parser.parse(input)

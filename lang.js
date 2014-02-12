@@ -26,6 +26,7 @@ function Lambda (args, body) {
   }
 }
 
+// Variable declaration
 function Variable (name, val) {
   this.name = name
   this.val = val
