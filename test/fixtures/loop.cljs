@@ -25,3 +25,11 @@
          result
          (recur (re-find matcher)    ;loop with 2 new arguments
                 (conj result match))))))
+
+(loop [i 0]
+  (when (< i 10)
+    (loop [j 0]
+      (when (< j 10)
+        (.log js/console i j)
+        (recur (inc j))))
+    (recur (inc i))))
