@@ -1,19 +1,9 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
+module.exports = function (t) {
+  if (t.last) this.push("return ")
 
-    if (t.last) {
-      code += "return "
-    }
+  this.push("[")
+  this.assembleEach(t.vals, ", ")
+  this.push("]")
 
-    code += "["
-
-    code += t.vals.map(function (val) {
-      return assemble([val], state)[0]
-    }).join(", ")
-
-    code += "]"
-
-    return [code]
-  }
+  return this
 }

@@ -1,5 +1,4 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    return [state.makeJsSafe(t.name)]
-  }
+module.exports = function (t) {
+  this.push(this.state.makeJsSafe(t.name))
+  return this
 }

@@ -1,13 +1,15 @@
-var parser = require("cljs-parser")
+var duplexer = require("duplexer")
+  , parse = require("cljs-parser")
   , translate = require("./translate")
   , assemble = require("./assemble/")
 
-module.exports.compile = function (input) {
-  var tree = parser.parse(input)
-    , translated = translate(tree)
-    , js = assemble(translated)
+module.exports = function () {
+  var parser = parse()
+    , translator = translate()
+    , assembler = assemble()
+
+  parser.pipe(translator).pipe(assembler)
 
   //console.log(JSON.stringify(tree, null, 2))
-
-  return js
+  return duplexer(parser, assembler)
 }

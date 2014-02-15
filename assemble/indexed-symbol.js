@@ -1,10 +1,5 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
-    if (t.last) {
-      code += "return "
-    }
-    code += state.scopes[0][t.index]
-    return [code]
-  }
+module.exports = function (t) {
+  if (t.last) this.push("return ")
+  this.push(this.state.scopes[0][t.index])
+  return this
 }

@@ -1,34 +1,30 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    if (!state.namespace) throw new Error("No namespace declared")
+module.exports = function (t) {
+  if (!this.state.namespace) throw new Error("No namespace declared")
 
-    state.scopeNames = false
-    var functionName = assemble(t.name, state)[0]
-    state.scopeNames = true
+  var fnName = this.state.makeJsSafe(t.name[0].name)
 
-    // Add the function to the current scope
-    state.addDefinition(functionName)
+  // Add the function to the current scope
+  this.state.addDefinition(fnName)
 
-    var code = assemble(t.name, state)[0] + " = function " + functionName + " ("
+  this.assemble(t.name)
+  this.push(" = function " + fnName + " (")
 
-    // Create a new scope where the function parameters will be declared
-    state.createScope()
+  // Create a new scope where the function parameters will be declared
+  this.state.createScope()
 
-    state.scopeNames = false
-    code += t.args.map(function (arg) {
-      var name = assemble([arg], state)[0]
-      state.addDefinition(name)
-      return name
-    }).join(", ")
-    state.scopeNames = true
+  var lastIndex = t.args.length - 1
+  t.args.forEach(function (arg, i) {
+    this.assemble([arg])
+    this.state.addDefinition(arg.name)
+    if (i < lastIndex) this.push(", ")
+  }, this)
 
-    code += ") {"
-    code += assemble(t.body, state).join(";\n")
-    code += "}"
+  this.push(") {")
+  this.assembleEach(t.body, ";\n")
+  this.push("}")
 
-    state.destroyScope()
+  this.state.destroyScope()
 
-    return [code]
-  }
+  return this
 }
 

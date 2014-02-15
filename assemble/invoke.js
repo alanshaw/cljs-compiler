@@ -1,53 +1,52 @@
 var lang = require("../lang")
 
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
+module.exports = function (t) {
+  if (t.last) this.push("return ")
 
-    if (t.last) {
-      code += "return "
+  if (t.name[0] instanceof lang.Symbol) {
+    var functionName = this.state.scopedName(t.name[0].name)
+
+    // TODO: This'll eventually be a list of imported namespaces
+    var namespaces = ["cljs.core", this.state.namespace]
+    var namespaced = false
+
+    for (var i = 0; i < namespaces.length; i++) {
+      if (functionName.indexOf(namespaces[i]) == 0) {
+        namespaced = true
+        break
+      }
     }
 
-    if (t.name[0] instanceof lang.Symbol) {
-      var functionName = assemble(t.name, state).join("")
+    this.assemble(t.name)
 
-      // TODO: This'll eventually be a list of imported namespaces
-      var namespaces = ["cljs.core", state.namespace]
-      var namespaced = false
+    if (namespaced) {
+      this.push(".call(null")
 
-      for (var i = 0; i < namespaces.length; i++) {
-        if (functionName.indexOf(namespaces[i]) == 0) {
-          namespaced = true
-          break
-        }
+      if (t.args.length) {
+        this.push(", ")
       }
-
-      if (namespaced) {
-        code += functionName + ".call(null"
-
-        if (t.args.length) {
-          code += ", "
-        }
-      } else {
-        code += functionName + "("
-      }
-
     } else {
-      code += assemble(t.name, state).join("") + "("
+      this.push("(")
     }
 
-    if (t.args.length) {
-      code += t.args.map(function (arg) {
-        if (arg instanceof lang.Construct || arg instanceof lang.Variable) {
-          return assemble([new lang.Invoke([new lang.Lambda([], arg)], [])], state)[0]
-        } else {
-          return assemble([arg], state)[0]
-        }
-      }).join(", ")
-    }
-
-    code += ")"
-
-    return [code]
+  } else {
+    this.assemble(t.name)
+    this.push("(")
   }
+
+  if (t.args.length) {
+    var lastIndex = t.args.length - 1
+    t.args.forEach(function (arg, i) {
+      if (arg instanceof lang.Construct || arg instanceof lang.Variable) {
+        this.assemble([new lang.Invoke([new lang.Lambda([], arg)], [])])
+      } else {
+        this.assemble([arg])
+      }
+      if (i < lastIndex) this.push(", ")
+    }, this)
+  }
+
+  this.push(")")
+
+  return this
 }

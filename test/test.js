@@ -1,4 +1,5 @@
 var fs = require("fs")
+  , consoleStream = require("console-stream")
   , compiler = require("../")
 
 var fixturesDir = __dirname + "/fixtures"
@@ -8,7 +9,6 @@ fs.readdir(fixturesDir, function (er, srcs) {
 
   srcs.forEach(function (src) {
     console.log("> " + src)
-    var input = fs.readFileSync(fixturesDir + "/" + src, {encoding: "utf8"})
-    console.log(compiler.compile(input))
+    fs.createReadStream(fixturesDir + "/" + src, {encoding: "utf-8"}).pipe(compiler()).pipe(consoleStream())
   })
 })

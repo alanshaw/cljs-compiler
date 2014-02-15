@@ -1,5 +1,4 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    return ["continue;"]
-  }
+module.exports = function (t) {
+  this.push("continue;")
+  return this
 }

@@ -1,18 +1,17 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    state.scopeNames = false
-    var v = assemble(t.name, state)[0]
-    state.scopeNames = true
+module.exports = function (t) {
+  var varName = this.state.makeJsSafe(t.name[0].name)
 
-    state.addDefinition(v)
+  this.state.addDefinition(varName)
 
-    // Top scope gets appended to namespace
-    if (state.scopes.length > 1) {
-      v = "var " + v
-    } else {
-      v = state.namespace + "." + v
-    }
-
-    return [v + " = " + assemble(t.val, state)[0]]
+  // Top scope gets appended to namespace
+  if (this.state.scopes.length > 1) {
+    this.push("var " + varName)
+  } else {
+    this.push(this.state.namespace + "." + varName)
   }
+
+  this.push(" = ")
+  this.assemble(t.val)
+
+  return this
 }
