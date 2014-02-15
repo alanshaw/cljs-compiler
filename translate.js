@@ -280,12 +280,16 @@ function macro (node) {
     case "deref":
       var invoke = new lang.Invoke([new lang.Symbol("deref")], translate(node.right))
       return [invoke]
-    // TODO: Dispatch macro changes function depending on context below is for "#("
     case "dispatch":
-      return [new lang.Lambda(
-        placeholders.transform(node),
-        translate(node.right)
-      )]
+      switch (node.left.left.val) {
+        // Comment
+        case "#_": return []
+        // Anonymous function literal
+        case "#": return [new lang.Lambda(
+          placeholders.transform(node),
+          translate(node.right)
+        )]
+      }
   }
   return []
 }
