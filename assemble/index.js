@@ -1,5 +1,15 @@
-var lang = require("../lang")
-var State = require("./state")
+var through = require("through")
+  , lang = require("../lang")
+  , State = require("./state")
+
+// TODO: Make node Transform stream
+function Assembler () {
+  this.stream = through(this.write.bind(this))
+}
+
+Assembler.prototype.write = function (translation) {
+
+}
 
 var genFunction = require("./function")(assemble)
   , genLambda = require("./lambda")(assemble)
@@ -24,7 +34,6 @@ var genFunction = require("./function")(assemble)
   , genMath = require("./math")(assemble)
   , genArray = require("./array")(assemble)
 
-// TODO: Stream
 function assemble (translation, state) {
   var lines = []
 
@@ -83,7 +92,10 @@ function assemble (translation, state) {
   return lines
 }
 
-module.exports = function (translation) {
+module.exports = function () {
+  var assembler = new Assembler()
+
+
   //console.log(JSON.stringify(translation, null, 2))
   return assemble(translation, new State()).join(";\n") + ";"
 }

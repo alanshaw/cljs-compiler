@@ -1,4 +1,5 @@
-var lang = require("./lang")
+var through = require("through")
+  , lang = require("./lang")
   , placeholders = require("./util/placeholders")
   , varName = require("./util/var-name")
 
@@ -294,7 +295,8 @@ function macro (node) {
   return []
 }
 
-module.exports = function (t) {
-  //console.log(JSON.stringify(t, null, 2))
-  return translate(t)
+module.exports = function () {
+  return through(function write (tree) {
+    this.queue(translate(tree))
+  })
 }
