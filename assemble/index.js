@@ -1,101 +1,104 @@
-var through = require("through")
+var stream = require("stream")
+  , util = require("util")
   , lang = require("../lang")
   , State = require("./state")
 
-// TODO: Make node Transform stream
-function Assembler () {
-  this.stream = through(this.write.bind(this))
+function Assembler (opts) {
+  stream.Transform.call(this, opts)
+  this.state = new State()
 }
 
-Assembler.prototype.write = function (translation) {
+util.inherits(Assembler, stream.Transform)
 
+Assembler.prototype._transform = function(chunk, encoding, done) {
+  this.assemble(chunk)
+  done()
 }
 
-var genFunction = require("./function")(assemble)
-  , genLambda = require("./lambda")(assemble)
-  , genVariable = require("./variable")(assemble)
-  , genInvoke = require("./invoke")(assemble)
-  , genNew = require("./new")(assemble)
-  , genAccessor = require("./accessor")(assemble)
-  , genKeyword = require("./keyword")(assemble)
-  , genSymbol = require("./symbol")(assemble)
-  , genString = require("./string")(assemble)
-  , genNumber = require("./number")(assemble)
-  , genBoolean = require("./boolean")(assemble)
-  , genNamespace = require("./namespace")(assemble)
-  , genAssign = require("./assign")(assemble)
-  , genConditional = require("./conditional")(assemble)
-  , genComparison = require("./comparison")(assemble)
-  , genWhile = require("./while")(assemble)
-  , genWhileTrue = require("./while-true")(assemble)
-  , genContinue = require("./continue")(assemble)
-  , genScope = require("./scope")(assemble)
-  , genIndexedSymbol = require("./indexed-symbol")(assemble)
-  , genMath = require("./math")(assemble)
-  , genArray = require("./array")(assemble)
+Assembler.prototype._flush = function(cb) {
+  cb()
+}
 
-function assemble (translation, state) {
-  var lines = []
+Assembler.prototype.genFunction = require("./function")
+Assembler.prototype.genLambda = require("./lambda")
+Assembler.prototype.genVariable = require("./variable")
+Assembler.prototype.genInvoke = require("./invoke")
+Assembler.prototype.genNew = require("./new")
+Assembler.prototype.genAccessor = require("./accessor")
+Assembler.prototype.genKeyword = require("./keyword")
+Assembler.prototype.genSymbol = require("./symbol")
+Assembler.prototype.genString = require("./string")
+Assembler.prototype.genNumber = require("./number")
+Assembler.prototype.genBoolean = require("./boolean")
+Assembler.prototype.genNamespace = require("./namespace")
+Assembler.prototype.genAssign = require("./assign")
+Assembler.prototype.genConditional = require("./conditional")
+Assembler.prototype.genComparison = require("./comparison")
+Assembler.prototype.genWhile = require("./while")
+Assembler.prototype.genWhileTrue = require("./while-true")
+Assembler.prototype.genContinue = require("./continue")
+Assembler.prototype.genScope = require("./scope")
+Assembler.prototype.genIndexedSymbol = require("./indexed-symbol")
+Assembler.prototype.genMath = require("./math")
+Assembler.prototype.genArray = require("./array")
 
-  if (!translation) return lines
+Assembler.prototype.assemble = function (translation) {
+  if (!translation) return
 
   translation.forEach(function (t) {
     if (t instanceof lang.Function) {
-      lines = lines.concat(genFunction(t, state))
+      this.genFunction(t)
     } else if (t instanceof lang.Lambda) {
-      lines = lines.concat(genLambda(t, state))
+      this.genLambda(t)
     } else if (t instanceof lang.Variable) {
-      lines = lines.concat(genVariable(t, state))
+      this.genVariable(t)
     } else if (t instanceof lang.Invoke) {
-      lines = lines.concat(genInvoke(t, state))
+      this.genInvoke(t)
     } else if (t instanceof lang.New) {
-      lines = lines.concat(genNew(t, state))
+      this.genNew(t)
     } else if (t instanceof lang.Accessor) {
-      lines = lines.concat(genAccessor(t, state))
+      this.genAccessor(t)
     } else if (t instanceof lang.Keyword) {
-      lines = lines.concat(genKeyword(t, state))
+      this.genKeyword(t)
     } else if (t instanceof lang.Symbol) {
-      lines = lines.concat(genSymbol(t, state))
+      this.genSymbol(t)
     } else if (t instanceof lang.String) {
-      lines = lines.concat(genString(t, state))
+      this.genString(t)
     } else if (t instanceof lang.Number) {
-      lines = lines.concat(genNumber(t, state))
+      this.genNumber(t)
     } else if (t instanceof lang.Boolean) {
-      lines = lines.concat(genBoolean(t, state))
+      this.genBoolean(t)
     } else if (t instanceof lang.Namespace) {
-      lines = lines.concat(genNamespace(t, state))
+      this.genNamespace(t)
     } else if (t instanceof lang.Assign) {
-      lines = lines.concat(genAssign(t, state))
+      this.genAssign(t)
     } else if (t instanceof lang.Conditional) {
-      lines = lines.concat(genConditional(t, state))
+      this.genConditional(t)
     } else if (t instanceof lang.Comparison) {
-      lines = lines.concat(genComparison(t, state))
+      this.genComparison(t)
     } else if (t instanceof lang.While) {
-      lines = lines.concat(genWhile(t, state))
+      this.genWhile(t)
     } else if (t instanceof lang.WhileTrue) {
-      lines = lines.concat(genWhileTrue(t, state))
+      this.genWhileTrue(t)
     } else if (t instanceof lang.Continue) {
-      lines = lines.concat(genContinue(t, state))
+      this.genContinue(t)
     } else if (t instanceof lang.Scope) {
-      lines = lines.concat(genScope(t, state))
+      this.genScope(t)
     } else if (t instanceof lang.IndexedSymbol) {
-      lines = lines.concat(genIndexedSymbol(t, state))
+      this.genIndexedSymbol(t)
     } else if (t instanceof lang.Math) {
-      lines = lines.concat(genMath(t, state))
+      this.genMath(t)
     } else if (t instanceof lang.Array) {
-      lines = lines.concat(genArray(t, state))
+      this.genArray(t)
     } else {
       throw new Error("Compile error " + JSON.stringify(t))
     }
-  })
+  }, this)
 
-  return lines
+  return this
 }
 
 module.exports = function () {
-  var assembler = new Assembler()
-
-
   //console.log(JSON.stringify(translation, null, 2))
-  return assemble(translation, new State()).join(";\n") + ";"
+  return new Assembler()
 }

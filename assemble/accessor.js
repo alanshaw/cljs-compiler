@@ -1,6 +1,4 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var prop = assemble(t.prop, state)[0]
-    return [assemble(t.obj, state).join("") + prop.replace(/^\._/, ".")]
-  }
+module.exports = function (t) {
+  var prop = this.assemble(t.prop)[0]
+  this.push(this.assemble(t.obj).join("") + prop.replace(/^\._/, "."))
 }
