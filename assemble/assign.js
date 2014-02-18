@@ -1,13 +1,9 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
+module.exports = function (t) {
+  if (t.last) this.push("return ")
 
-    if (t.last) {
-      code += "return "
-    }
+  this.assemble(t.name)
+  this.push(" = ")
+  this.assemble(t.val)
 
-    code += assemble(t.name, state)[0] + " = " + assemble(t.val, state)[0]
-
-    return [code]
-  }
+  return this
 }

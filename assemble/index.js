@@ -98,6 +98,21 @@ Assembler.prototype.assemble = function (translation) {
   return this
 }
 
+/**
+ * Assemble each ts separately, glueing them together with a this.push(glue)
+ * @param {Array} ts
+ * @param {String} [glue]
+ * @returns {Assembler}
+ */
+Assembler.prototype.assembleEach = function (ts, glue) {
+  var lastIndex = ts.length - 1
+  ts.forEach(function (t, i) {
+    this.assemble([t])
+    if (glue && i < lastIndex) this.push(glue)
+  }, this)
+  return this
+}
+
 module.exports = function () {
   //console.log(JSON.stringify(translation, null, 2))
   return new Assembler()
