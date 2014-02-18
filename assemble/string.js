@@ -1,10 +1,5 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
-    if (t.last) {
-      code += "return "
-    }
-    code += '"' + t.val.replace(/"/g, '\\"') + '"'
-    return [code]
-  }
+module.exports = function (t) {
+  if (t.last) this.push("return ")
+  this.push('"' + t.val.replace(/"/g, '\\"') + '"')
+  return this
 }

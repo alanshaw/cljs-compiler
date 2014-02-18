@@ -4,6 +4,8 @@ var stream = require("stream")
   , State = require("./state")
 
 function Assembler (opts) {
+  opts = opts || {}
+  opts.objectMode = true
   stream.Transform.call(this, opts)
   this.state = new State()
 }

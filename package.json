@@ -23,6 +23,10 @@
   "homepage": "https://github.com/alanshaw/cljs-compiler",
   "dependencies": {
     "cljs-parser": "~0.2.1",
-    "through": "~2.3.4"
+    "through": "~2.3.4",
+    "duplexer": "~0.1.1"
+  },
+  "devDependencies": {
+    "console-stream": "~0.1.1"
   }
 }

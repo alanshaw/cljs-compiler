@@ -1,17 +1,13 @@
 var lang = require("../lang")
 
-module.exports = function (t, state) {
-  var code = ""
-
-  if (t.last) {
-    code += "return "
-  }
+module.exports = function (t) {
+  if (t.last) this.push("return ")
 
   if (t.name[0] instanceof lang.Symbol) {
-    var functionName = assemble(t.name, state).join("")
+    var functionName = this.state.scopedName(t.name[0].name)
 
     // TODO: This'll eventually be a list of imported namespaces
-    var namespaces = ["cljs.core", state.namespace]
+    var namespaces = ["cljs.core", this.state.namespace]
     var namespaced = false
 
     for (var i = 0; i < namespaces.length; i++) {
@@ -21,31 +17,36 @@ module.exports = function (t, state) {
       }
     }
 
+    this.assemble(t.name)
+
     if (namespaced) {
-      code += functionName + ".call(null"
+      this.push(".call(null")
 
       if (t.args.length) {
-        code += ", "
+        this.push(", ")
       }
     } else {
-      code += functionName + "("
+      this.push("(")
     }
 
   } else {
-    code += assemble(t.name, state).join("") + "("
+    this.assemble(t.name)
+    this.push("(")
   }
 
   if (t.args.length) {
-    code += t.args.map(function (arg) {
+    var lastIndex = t.args.length - 1
+    t.args.forEach(function (arg, i) {
       if (arg instanceof lang.Construct || arg instanceof lang.Variable) {
-        return assemble([new lang.Invoke([new lang.Lambda([], arg)], [])], state)[0]
+        this.assemble([new lang.Invoke([new lang.Lambda([], arg)], [])])
       } else {
-        return assemble([arg], state)[0]
+        this.assemble([arg])
       }
-    }).join(", ")
+      if (i < lastIndex) this.push(", ")
+    }, this)
   }
 
-  code += ")"
+  this.push(")")
 
-  return [code]
+  return this
 }

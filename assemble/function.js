@@ -1,11 +1,13 @@
 module.exports = function (t) {
   if (!this.state.namespace) throw new Error("No namespace declared")
 
+  var fnName = this.state.makeJsSafe(t.name[0].name)
+
   // Add the function to the current scope
-  this.state.addDefinition(t.name.name)
+  this.state.addDefinition(fnName)
 
   this.assemble(t.name)
-  this.push(" = function " + t.name.name + " (")
+  this.push(" = function " + fnName + " (")
 
   // Create a new scope where the function parameters will be declared
   this.state.createScope()

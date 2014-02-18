@@ -1,21 +1,11 @@
-module.exports = function (assemble) {
-  return function (t, state) {
-    var code = ""
+module.exports = function (t) {
+  if (t.last) this.push("return ")
 
-    if (t.last) {
-      code += "return "
-    }
+  this.push("new ")
+  this.assemble(t.name)
+  this.push("(")
+  this.assembleEach(t.args, ", ")
+  this.push(")")
 
-    code += "new " + assemble(t.name, state).join("") + "("
-
-    if (t.args.length) {
-      code += t.args.map(function (arg) {
-        return assemble([arg], state)[0]
-      }).join(", ")
-    }
-
-    code += ")"
-
-    return [code]
-  }
+  return this
 }

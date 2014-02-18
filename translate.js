@@ -298,5 +298,5 @@ function macro (node) {
 module.exports = function () {
   return through(function write (tree) {
     this.queue(translate(tree))
-  })
+  }, null, {objectMode: true})
 }
